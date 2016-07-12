@@ -23,7 +23,6 @@ def atualizar_local(tid, loc):
 	else:
 		db.cur.execute("UPDATE users SET location="+loc+" WHERE id="+tid+";")
 	db.conn.commit()
-	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
 
 def start(bot, update):
 	button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
@@ -35,11 +34,13 @@ def location(bot, update):
 	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
 	atualizar_local(tid, loc)
+	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
 
 def local(bot, update, args):
-	tid = update.message.from_user.id
+	tid = str(update.message.from_user.id)
 	loc = "'"+args+"'"
 	atualizar_local(tid, loc)
+	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
 
 def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
