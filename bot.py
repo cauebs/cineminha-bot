@@ -27,7 +27,7 @@ def start(bot, update):
 def location(bot, update):
 	tid = update.message.from_user.id
 	loc = str(update.message.location.latitude)+", "+str(update.message.location.longitude)
-	db.curr.execute("INSERT INTO users ("+tid+", "+loc+");")
+	db.curr.execute("INSERT INTO users VALUES ("+tid+", "+loc+");")
 
 def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
