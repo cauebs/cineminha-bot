@@ -1,2 +1,3 @@
 # cineminha-bot
-Telegram bot for movie showtimes fetching
+
+Available at https://telegram.me/cineminha_bot
