@@ -27,6 +27,8 @@ def start(bot, update):
 def location(bot, update):
 	tid = update.message.from_user.id
 	loc = str(update.message.location.latitude)+", "+str(update.message.location.longitude)
+	print(tid)
+	print(loc)
 	db.cur.execute("INSERT INTO users VALUES ("+tid+", "+loc+");")
 	db.conn.commit()
 
