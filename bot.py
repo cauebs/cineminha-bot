@@ -1,7 +1,6 @@
 import os
 from telegram.ext import Updater, CommandHandler
 from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
-from textos import *
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -15,10 +14,10 @@ updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 
 def start(bot, update):
-	button = KeyboardButton(ROUND_PUSHPIN+" Enviar localização",request_location=True)
+	button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
 	keyboard = [[button]]
 	rep_markup = ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
-	bot.sendMessage(update.message.chat_id, text=starttext, reply_markup=rep_markup)
+	bot.sendMessage(update.message.chat_id, text='Olá! Envie sua localização para começar (ela não será compartilhada com ninguém)', reply_markup=rep_markup)
 
 def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
