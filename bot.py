@@ -1,5 +1,6 @@
 import os
-from telegram.ext import Updater, CommandHandler, ReplyKeyboardMarkup, KeyboardButton, Emoji
+from telegram.ext import Updater, CommandHandler
+from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
 from textos import *
 
 TOKEN = os.environ.get('TOKEN')
