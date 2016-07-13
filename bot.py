@@ -37,7 +37,7 @@ def location(bot, update):
 	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
 
 def local(bot, update, args):
-	if len(arg)==0:
+	if len(args)==0:
 		bot.sendMessage(update.message.chat_id,text=local_vazio_text)
 	else:
 		tid = str(update.message.from_user.id)
