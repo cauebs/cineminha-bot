@@ -38,7 +38,7 @@ def location(bot, update):
 
 def local(bot, update, args):
 	tid = str(update.message.from_user.id)
-	loc = "'"+args+"'"
+	loc = "'"+" ".join(args)+"'"
 	atualizar_local(tid, loc)
 	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
 
@@ -52,7 +52,7 @@ def pesquisar(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
 
 def query(bot, update, args):
-	db.cur.execute(args)
+	db.cur.execute(" ".join(args))
 	response = str(db.cur.fetchall())
 	bot.sendMessage(update.message.chat_id,text=response)
 
