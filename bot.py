@@ -55,7 +55,7 @@ def pesquisar(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
 
 def feedback(bot, update, args):
-	bot.sendMessage(61407387,text='Feedback (@cineminha_bot): '+" ".join(args))
+	bot.sendMessage(61407387,text='Feedback: '+" ".join(args),parse_mode='HTML')
 
 def query(bot, update, args):
 	db.cur.execute(" ".join(args))
