@@ -31,36 +31,36 @@ def start(bot, update):
 	button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
 	keyboard = [[button]]
 	rep_markup = ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
-	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=rep_markup)
+	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=rep_markup, parse_mode="Markdown")
 
 def location(bot, update):
 	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
-	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
+	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown")
 	if atualizar_local(tid, loc):
-		bot.sendMessage(update.message.chat_id,text=comandos_text)
+		bot.sendMessage(update.message.chat_id,text=comandos_text, parse_mode="Markdown")
 
 def local(bot, update, args):
 	if len(args)==0:
-		bot.sendMessage(update.message.chat_id,text=local_vazio_text)
+		bot.sendMessage(update.message.chat_id,text=local_vazio_text, parse_mode="Markdown")
 	else:
 		tid = str(update.message.from_user.id)
 		loc = "'"+" ".join(args)+"'"
 		atualizar_local(tid, loc)
-		bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
+		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown")
 
 def filmes(bot, update):
-	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
+	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")
 
 def cinemas(bot, update):
 	loc = db.get_user_location(update.message.from_user.id)
-	bot.sendMessage(update.message.chat_id,text=cineminha(loc))
+	bot.sendMessage(update.message.chat_id,text=cineminha(loc), parse_mode="Markdown")
 
 def pesquisar(bot, update):
-	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
+	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")
 
 def feedback(bot, update, args):
-	bot.sendMessage(61407387,text='Feedback: '+" ".join(args))
+	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], location))
