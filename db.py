@@ -15,3 +15,7 @@ class DataBase():
 		    port=self.url.port
 		)
 		self.cur = self.conn.cursor()
+
+	def get_user_location(tid):
+		self.cur.execute("SELECT location FROM users WHERE id="+tid)
+		return self.curr.fetchone()[0]

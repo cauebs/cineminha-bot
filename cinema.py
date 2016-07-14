@@ -2,35 +2,27 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 #from telegram import InlineQueryResultArticle, InputTextMessageContent
 
-class Cineminha():
+def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', info=False):
+	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(near, date, time, sort, hl)
+	if q!='':
+		url += '&q='+q
+	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")[0]
+	response = ''
 
-	def cinema(location, date_offset=0):
-		url = 'http://google.com/movies?near='
-		url += location + '&date=' + date_offset
-		source = urlopen(url).read()
-		soup = BeautifulSoup(source,'html.parser').find_all("div", class_="movie_results")[0]
-		for div in soup.find_all('span')[0:-1]:
-			if span.get('style')=="font-size:16px;" and span.strong is not None:
-				strong = span.strong.get_text()
+	for div in soup.children:
+		if div["class"][0] == 'theater':
+			response += '*- '+div.h2.get_text()+' -*\n\n'
 
-				nome = span.a.get_text()
-				data = strong.split(' - ')[0]
-				horario = strong.split(' - ')[1].replace(':','').strip()
-				link = span.a.get('href')
-				ing_soup = BeautifulSoup(urlopen(link).read(),'html.parser')
-				ing_strong = ing_soup.find_all('strong')
-				ingresso = ''
-				for strong in ing_strong:
-					if "Ingressos:" in strong.get_text():
-						ingresso = strong.parent.get_text().replace('Ingressos:','').strip()
-						if ingresso=='':
-							i = 0
-							for div in strong.parent.find_next_siblings():
-								if div.get_text().strip()!='':
-									ingresso += div.get_text().replace('\n','').replace('\t','').strip()+'\n'
-								i = i+1
-								if i>=5:
-									break
+			for movie in div.find_all("div", class_="movie"):
+				response += '*'+movie.a.get_text()+'*\n_'
+				response += movie.span.get_text()+'_\n'
 
-				e = Evento(nome,datetime.strptime(data, '%d/%m/%Y'),horario,link,ingresso)
-				self.lista.append(e)
+				for time in movie.find_all("span", style='color:#666'):
+					response += time.get_text()+''
+				for time in movie.find_all("span", style='color:'):
+					response += '*'+time.get_text()+'*'
+
+				response += '\n\n'
+			response += '\n'
+
+	return response

@@ -20,9 +20,12 @@ def atualizar_local(tid, loc):
 	db.cur.execute("SELECT * FROM users WHERE id="+tid)
 	if db.cur.fetchone() is None:
 		db.cur.execute("INSERT INTO users VALUES ("+tid+", "+loc+");")
+		db.conn.commit()
+		return True
 	else:
 		db.cur.execute("UPDATE users SET location="+loc+" WHERE id="+tid+";")
-	db.conn.commit()
+		db.conn.commit()
+		return False
 
 def start(bot, update):
 	button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
@@ -33,8 +36,9 @@ def start(bot, update):
 def location(bot, update):
 	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
-	atualizar_local(tid, loc)
 	bot.sendMessage(update.message.chat_id,text=local_atualizado_text)
+	if atualizar_local(tid, loc):
+		bot.sendMessage(update.message.chat_id,text=comandos_text)
 
 def local(bot, update, args):
 	if len(args)==0:
@@ -49,21 +53,14 @@ def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
 
 def cinemas(bot, update):
-	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
+	loc = db.get_user_location(update.message.from_user.id)
+	bot.sendMessage(update.message.chat_id,text=cineminha(loc))
 
 def pesquisar(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
 
 def feedback(bot, update, args):
-	bot.sendMessage(61407387,text='Feedback: '+" ".join(args),parse_mode='HTML')
-
-def query(bot, update, args):
-	db.cur.execute(" ".join(args))
-	response = db.cur.fetchall()
-	text = ''
-	for i in response:
-		text += str(i) + '\n'
-	bot.sendMessage(update.message.chat_id,text=text,parse_mode='Markdown')
+	bot.sendMessage(61407387,text='Feedback: '+" ".join(args))
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], location))
@@ -72,6 +69,5 @@ updater.dispatcher.add_handler(CommandHandler('filmes', filmes))
 updater.dispatcher.add_handler(CommandHandler('cinemas', cinemas))
 updater.dispatcher.add_handler(CommandHandler('pesquisar', pesquisar))
 updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('query', query, pass_args=True))
 
 updater.idle()
