@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
 from textos import *
 from db import DataBase
+from cinema import *
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
