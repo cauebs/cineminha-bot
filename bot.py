@@ -54,6 +54,9 @@ def cinemas(bot, update):
 def pesquisar(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name)
 
+def feedback(bot, update, args):
+	bot.sendMessage(61407387,text='Feedback (@cineminha_bot): '+" ".join(args))
+
 def query(bot, update, args):
 	db.cur.execute(" ".join(args))
 	response = db.cur.fetchall()
@@ -68,6 +71,7 @@ updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('filmes', filmes))
 updater.dispatcher.add_handler(CommandHandler('cinemas', cinemas))
 updater.dispatcher.add_handler(CommandHandler('pesquisar', pesquisar))
+updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('query', query, pass_args=True))
 
 updater.idle()
