@@ -87,22 +87,30 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 	else:
 		for theater in info:
 			if theater["type"] == 'theater':
-				t = '*'+theater["name"]+'*'
+				t = '*'+theater["name"]+'*\n'
 				if detail:
-					t += '_'+theater["info"]+'_'
+					t += '_'+theater["info"]+'_\n'
 
 				for movie in theater["movies"]:
-					t += '\n\n*'+movie["name"]+'*\n'
-					t += '_'+movie["info"]+'_\n'
+					t += '\n*'+movie["name"]+'*\n'
+					if detail:
+						desc = movie["info"].split('-')
+						t += '_Duração: '+desc[0].strip()
+						if len(desc)>1:
+							t += ' - '+desc[1].strip()
+						t += '_\n'
+					else:
+						t += '_Duração: '+movie["info"].split('-')[0].strip()+'_\n'
 					if len(movie["times"]["dub"]) > 0:
 						t += 'Dublado: '
 						for time in movie["times"]["dub"]:
 							t += time + '  '
+						t += '\n'
 					if len(movie["times"]["leg"]) > 0:
 						t += 'Legendado: '
 						for time in movie["times"]["leg"]:
 							t += time + '  '
+						t += '\n'
 			response.append(t)
 
 	return response
-	
