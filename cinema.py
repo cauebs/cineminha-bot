@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+from urllib.parse import quote
 from bs4 import BeautifulSoup
 #from telegram import InlineQueryResultArticle, InputTextMessageContent
 
@@ -6,7 +7,7 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', info=False):
 	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(near, date, time, sort, hl)
 	if q!='':
 		url += '&q='+q
-	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")[0]
+	soup = BeautifulSoup(urlopen(quote(url)).read(),'html.parser').find_all("div", class_="movie_results")[0]
 	response = ''
 
 	for div in soup.children:
