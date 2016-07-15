@@ -55,10 +55,8 @@ def filmes(bot, update):
 
 def cinemas(bot, update):
 	loc = db.get_user_location(update.message.from_user.id)
-	print(loc)
-	mes = cineminha(loc)
-	print(mes)
-	bot.sendMessage(update.message.chat_id,text=mes, parse_mode="Markdown")
+	for i in cineminha(loc):
+		bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def pesquisar(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")

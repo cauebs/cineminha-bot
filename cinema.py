@@ -8,22 +8,23 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', info=False):
 	if q!='':
 		url += '&q='+q
 	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")[0]
-	response = ''
-
+	response = []
+	c = 0
 	for div in soup.children:
 		if div["class"][0] == 'theater':
-			response += '*- '+div.h2.get_text()+' -*\n\n'
+			response.append('')
+			response[c] += '*- '+div.h2.get_text()+' -*\n\n'
 
 			for movie in div.find_all("div", class_="movie"):
-				response += '*'+movie.a.get_text()+'*\n_'
-				response += movie.span.get_text()+'_\n'
+				response[c] += '*'+movie.a.get_text()+'*\n_'
+				response[c] += movie.span.get_text()+'_\n'
 
 				for time in movie.find_all("span", style='color:#666'):
-					response += time.get_text()+''
+					response[c] += time.get_text()+''
 				for time in movie.find_all("span", style='color:'):
-					response += '*'+time.get_text()+'*'
+					response[c] += '*'+time.get_text()+'*'
 
-				response += '\n\n'
-			response += '\n'
+				response[c] += '\n\n'
+			c += 1
 
 	return response
