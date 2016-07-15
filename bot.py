@@ -54,7 +54,7 @@ def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")
 
 def cinemas(bot, update):
-	loc = db.get_user_location(update.message.from_user.id)
+	loc = db.get_user_location(update.message.from_user.id).replace(" ","%20")
 	bot.sendMessage(update.message.chat_id,text=cineminha(loc), parse_mode="Markdown")
 
 def pesquisar(bot, update):

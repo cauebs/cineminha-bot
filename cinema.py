@@ -26,3 +26,5 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', info=False):
 			response += '\n'
 
 	return response
+
+print(cineminha('Rua Indiana, 86'))
