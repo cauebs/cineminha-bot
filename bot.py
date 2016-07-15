@@ -58,7 +58,7 @@ def cinemas(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cinemas(loc):
+		for i in fetch.cineminha(loc):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def pesquisar(bot, update):
