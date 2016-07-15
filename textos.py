@@ -19,3 +19,5 @@ Você pode mudá-la a qualquer momento compartilhando uma localização ou usand
 local_vazio_text = '''*Favor inserir alguma localização após /local.* Exemplos:
 /local _Trindade Florianópolis_
 /local _São José SC_'''
+
+local_nao_definido = '''Primeiro defina o local com /local ou enviando uma localização!'''
