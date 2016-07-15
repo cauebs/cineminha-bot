@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 #from telegram import InlineQueryResultArticle, InputTextMessageContent
 
 def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', info=False):
-	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(near, date, time, sort, hl)
+	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(quote(near), date, time, sort, hl)
 	if q!='':
 		url += '&q='+q
-	soup = BeautifulSoup(urlopen(quote(url)).read(),'html.parser').find_all("div", class_="movie_results")[0]
+	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")[0]
 	response = ''
 
 	for div in soup.children:
