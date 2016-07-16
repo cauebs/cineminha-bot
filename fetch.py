@@ -133,7 +133,7 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 	response = []
 
 	if len(info)==0:
-		text = '*Não foi encontrado nenhum resultado.*\nTente alterar a sua localização'
+		text = '*Não foi encontrado nenhum resultado.*\nTente outra coisa ou atualize sua localização'
 		response.append(text)
 	else:
 		for i in info:
