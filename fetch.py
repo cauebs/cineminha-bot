@@ -126,7 +126,7 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 
 	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(quote(near), date, time, sort, hl)
 	if q!='':
-		url += '&q='+q
+		url += '&q='+quote(q)
 
 	info = serialize(url)
 
