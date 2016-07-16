@@ -47,8 +47,9 @@ def local(bot, update, args):
 	else:
 		tid = str(update.message.from_user.id)
 		loc = "'"+" ".join(args)+"'"
-		atualizar_local(tid, loc)
 		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown")
+		if atualizar_local(tid, loc):
+			bot.sendMessage(update.message.chat_id,text=comandos_text, parse_mode="Markdown")
 
 def filmes(bot, update):
 	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")

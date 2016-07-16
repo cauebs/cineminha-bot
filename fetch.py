@@ -87,22 +87,19 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 		text = '*Não foi encontrado nenhum resultado.*\nTente alterar a sua localização'
 		response.append(text)
 	else:
-		for theater in info:
-			if theater["type"] == 'theater' and len(theater["movies"]) > 0:
-				t = '*'+theater["name"]+'*\n'
+		for i in info:
+			if i["type"] == 'theater' and len(i["movies"]) > 0:
+				t = '*'+i["name"]+'*\n'
 				if detail:
-					t += '_'+theater["info"]+'_\n'
-
-				for movie in theater["movies"]:
-					t += '\n*'+movie["name"]+'*\n'
-					if detail:
-						desc = movie["info"].split('-')
-						t += '_Duração: '+desc[0].strip()
-						if len(desc)>1:
-							t += ' - '+desc[1].strip()
-						t += '_\n'
+					t += '_'+i["info"]+'_\n'
+				for movie in i["movies"]:
+					t += '\n*'+movie["name"]+'* '
+					desc = movie["info"].split('-')
+					if detail and len(desc)>1:
+						t += '\n'+desc[0].strip()+' - '+desc[1].strip()
 					else:
-						t += '_Duração: '+movie["info"].split('-')[0].strip()+'_\n'
+						t += '('+desc[0].strip()+')'
+					t += '\n'
 					if len(movie["times"]["dub"]) > 0:
 						t += 'Dublado: '
 						for time in movie["times"]["dub"]:
@@ -113,10 +110,8 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 						for time in movie["times"]["leg"]:
 							t += time + '  '
 						t += '\n'
-			response.append(t)
+				response.append(t)
+
+			
 
 	return response
-
-for i in cineminha('palhoça'):
-	print(i)
-	print('#'*20)
