@@ -52,7 +52,15 @@ def local(bot, update, args):
 	else:
 		tid = str(update.message.from_user.id)
 		loc = "'"+" ".join(args)+"'"
-		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown")
+
+		location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
+		cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
+		filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
+		pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
+		keyboard = [[location_button],[cinemas_button],[filmes_button],[pesquisar_button]]
+		rep_markup = ReplyKeyboardMarkup(keyboard)
+		
+		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
 		atualizar_local(tid, loc)
 
 def filmes(bot, update):
