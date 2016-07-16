@@ -52,7 +52,12 @@ def local(bot, update, args):
 			bot.sendMessage(update.message.chat_id,text=comandos_text, parse_mode="Markdown")
 
 def filmes(bot, update):
-	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")
+	loc = db.get_user_location(update.message.from_user.id)
+	if loc is None:
+		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
+	else:
+		for i in fetch.cineminha(loc, sort=1, detail=True):
+			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def cinemas(bot, update):
 	loc = db.get_user_location(update.message.from_user.id)
@@ -62,8 +67,13 @@ def cinemas(bot, update):
 		for i in fetch.cineminha(loc, detail=True):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
-def pesquisar(bot, update):
-	bot.sendMessage(update.message.chat_id,text='Hello '+update.message.from_user.first_name, parse_mode="Markdown")
+def pesquisar(bot, update, args):
+	loc = db.get_user_location(update.message.from_user.id)
+	if loc is None:
+		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
+	else:
+		for i in fetch.cineminha(loc, q=" ".join(args)):
+			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def feedback(bot, update, args):
 	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
@@ -73,7 +83,7 @@ updater.dispatcher.add_handler(MessageHandler([Filters.location], location))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('filmes', filmes))
 updater.dispatcher.add_handler(CommandHandler('cinemas', cinemas))
-updater.dispatcher.add_handler(CommandHandler('pesquisar', pesquisar))
+updater.dispatcher.add_handler(CommandHandler('pesquisar', pesquisar, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
 
 updater.idle()
