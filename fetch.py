@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 from urllib.parse import quote
 from bs4 import BeautifulSoup
-#from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram import Emoji
 
 def serialize(url):
 	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")
@@ -138,9 +138,9 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 	else:
 		for i in info:
 			if i["type"] == 'theater' and len(i["movies"]) > 0:
-				t = '*'+i["name"]+'*\n'
+				t = Emoji.MOVIE_CAMERA+' *'+i["name"]+'*\n'
 				for movie in i["movies"]:
-					t += '\n*'+movie["name"]+'* '
+					t += '\n• '+movie["name"]+' '
 					desc = movie["info"].split('-')
 					if detail and len(desc)>1:
 						t += '\n'+desc[0].strip()+' - '+desc[1].strip()
@@ -160,22 +160,20 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 				response.append(t)
 
 			if i["type"] == 'movie':
-				t = '*'+i["name"]+'*\n'
-				t += i["info"]+'\n'
+				m = Emoji.CLAPPER_BOARD+' *'+i["name"]+'*\n'
+				m += i["info"]+'\n'
 				for theater in i["theaters"]:
-					t += '\n'+theater["name"]+'\n'
+					m += '\n• '+theater["name"]+'\n'
 					if len(theater["times"]["dub"]) > 0:
-						t += 'Dublado: '
+						m += 'Dublado: '
 						for time in theater["times"]["dub"]:
-							t += time + '  '
-						t += '\n'
+							m += time + '  '
+						m += '\n'
 					if len(theater["times"]["leg"]) > 0:
-						t += 'Legendado: '
+						m += 'Legendado: '
 						for time in theater["times"]["leg"]:
-							t += time + '  '
-						t += '\n'
-				response.append(t)
+							m += time + '  '
+						m += '\n'
+				response.append(m)
 
 	return response
-
-print(cineminha('Palhoça', detail=True))

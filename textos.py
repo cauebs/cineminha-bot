@@ -11,7 +11,7 @@ local_vazio_text = '''*Favor inserir alguma localização.* Exemplos:
 /local _Trindade Florianópolis_
 /local _São José SC_'''
 
-pesquisar_text = '''*Envie o que você deseja pesquisar:*'''
+pesquisar_text = '''Me envie qualquer mensagem para pesquisar!'''
 
 local_nao_definido = '''Primeiro defina o local com /local ou enviando uma localização!'''
 

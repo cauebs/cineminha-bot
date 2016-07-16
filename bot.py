@@ -16,6 +16,12 @@ updater.start_webhook(listen="0.0.0.0",
 updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 db = DataBase()
+location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Atualizar localização",request_location=True)
+cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
+filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
+pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
+keyboard = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
+rep_markup = ReplyKeyboardMarkup(keyboard)
 
 def atualizar_local(tid, loc):
 	db.cur.execute("SELECT * FROM users WHERE id="+tid)
@@ -29,20 +35,12 @@ def atualizar_local(tid, loc):
 def start(bot, update):
 	location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
 	keyboard = [[location_button]]
-	rep_markup = ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
-	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=rep_markup, parse_mode="Markdown")
+	start_markup = ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
+	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=start_markup, parse_mode="Markdown")
 
 def location(bot, update):
 	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
-
-	location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
-	cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
-	filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
-	pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-	keyboard = [[location_button],[cinemas_button],[filmes_button],[pesquisar_button]]
-	rep_markup = ReplyKeyboardMarkup(keyboard)
-
 	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
 	atualizar_local(tid, loc)
 
@@ -52,14 +50,6 @@ def local(bot, update, args):
 	else:
 		tid = str(update.message.from_user.id)
 		loc = "'"+" ".join(args)+"'"
-
-		location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
-		cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
-		filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
-		pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-		keyboard = [[location_button],[cinemas_button],[filmes_button],[pesquisar_button]]
-		rep_markup = ReplyKeyboardMarkup(keyboard)
-		
 		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
 		atualizar_local(tid, loc)
 
@@ -76,7 +66,7 @@ def cinemas(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(loc):
+		for i in fetch.cineminha(loc, detail=True):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def pesquisar(bot, update):
