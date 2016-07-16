@@ -91,6 +91,7 @@ def messages(bot, update):
 
 def feedback(bot, update, args):
 	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
+	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))

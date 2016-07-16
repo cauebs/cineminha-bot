@@ -14,3 +14,6 @@ local_vazio_text = '''*Favor inserir alguma localização.* Exemplos:
 pesquisar_text = '''*Envie o que você deseja pesquisar:*'''
 
 local_nao_definido = '''Primeiro defina o local com /local ou enviando uma localização!'''
+
+feedback_text = '''*Sua mensagem foi enviada anonimamente*
+Se deseja conversar com o desenvolvedor, contate-o em @cauebs'''
