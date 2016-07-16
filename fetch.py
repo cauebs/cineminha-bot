@@ -19,12 +19,12 @@ def serialize(url):
 
 				for m in div.find_all("div", class_="movie"):
 					movie = {}
-					movie["name"] = t.a.get_text()
+					movie["name"] = m.a.get_text()
 					if movie["name"] == '':
 						continue
-					movie["info"] = t.span.get_text()
+					movie["info"] = m.span.get_text()
 					movie["times"] = {"dub":[],"leg":[]}
-					times = t.find_all("div", class_="times")[0]
+					times = m.find_all("div", class_="times")[0]
 					lang = ""
 					if "Dublado" in movie["info"]:
 						lang = "dub"
@@ -163,7 +163,7 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 				t = '*'+i["name"]+'*\n'
 				t += i["info"]+'\n'
 				for theater in i["theaters"]:
-					t += '\n*'+theater["name"]+'*\n'
+					t += '\n'+theater["name"]+'\n'
 					if len(theater["times"]["dub"]) > 0:
 						t += 'Dublado: '
 						for time in theater["times"]["dub"]:
@@ -177,3 +177,5 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 				response.append(t)
 
 	return response
+
+print(cineminha('Palhoça', detail=True))
