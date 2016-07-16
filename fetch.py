@@ -177,3 +177,5 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 				response.append(m)
 
 	return response
+
+print(serialize('http://google.com/movies?near=Palhoca,SC')[0])
