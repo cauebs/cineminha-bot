@@ -182,8 +182,8 @@ def inline(query, loc):
 	lista = []
 	c = 0
 	for e in cineminha(loc, sort=1, q=query):
-		message = InputTextMessageContent(e,"Markdown")
-		result = InlineQueryResultArticle(str(c),e.split('\n')[0],message,description=e.split('\n')[1:])
+		message = InputTextMessageContent(e,parse_mode="Markdown")
+		result = InlineQueryResultArticle(str(c),e.split('\n')[0],message,description='\n'.join(e.split('\n')[1:]))
 		lista.append(result)
 		c += 1
 	return lista
