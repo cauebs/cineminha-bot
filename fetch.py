@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 from urllib.parse import quote
 from bs4 import BeautifulSoup
-from telegram import Emoji
+from telegram import Emoji, InlineQueryResultArticle, InputTextMessageContent
 
 def serialize(url):
 	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")
@@ -178,4 +178,17 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 
 	return response
 
-print(serialize('http://google.com/movies?near=Palhoca,SC')[0])
+def inline(query, loc):
+	lista = []
+	c = 0
+	for e in cineminha(loc, sort=1, q=query):
+
+		if e["type"]=='theater':
+
+		if e["type"]=='movie':
+
+		message = InputTextMessageContent(e,"Markdown")
+		result = InlineQueryResultArticle(str(c),e.split('\n')[0],message,description=e.split('\n')[1:])
+		lista.append(result)
+		c += 1
+	return lista

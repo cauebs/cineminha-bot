@@ -90,15 +90,21 @@ def messages(bot, update):
 	else:
 		pesquisar(bot, update)
 
-def feedback(bot, update, args):
-	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
-	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
+#def feedback(bot, update, args):
+#	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
+#	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
+
+def inline(bot, update):
+	loc = db.get_user_location(update.inline_query.from_user.id)
+    results = fetch.inline(update.inline_query.query, loc)
+    bot.answerInlineQuery(update.inline_query.id, results=results)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', ajuda))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
+#updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], location))
 updater.dispatcher.add_handler(MessageHandler([Filters.text], messages))
+updater.dispatcher.add_handler(InlineQueryHandler(inline))
 
 updater.idle()
