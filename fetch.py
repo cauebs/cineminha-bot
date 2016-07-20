@@ -182,11 +182,6 @@ def inline(query, loc):
 	lista = []
 	c = 0
 	for e in cineminha(loc, sort=1, q=query):
-
-		if e["type"]=='theater':
-
-		if e["type"]=='movie':
-
 		message = InputTextMessageContent(e,"Markdown")
 		result = InlineQueryResultArticle(str(c),e.split('\n')[0],message,description=e.split('\n')[1:])
 		lista.append(result)
