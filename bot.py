@@ -1,6 +1,6 @@
 import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineQueryHandler, Emoji
 from textos import *
 from db import DataBase
 import fetch
