@@ -61,7 +61,7 @@ def filmes(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(serialize(loc, sort=1)):
+		for i in fetch.cineminha(fetch.serialize(loc, sort=1)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def cinemas(bot, update):
@@ -69,7 +69,7 @@ def cinemas(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(serialize(loc, detail=True)):
+		for i in fetch.cineminha(fetch.serialize(loc, detail=True)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def pesquisar(bot, update):
@@ -77,7 +77,7 @@ def pesquisar(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(serialize(loc, q=update.message.text)):
+		for i in fetch.cineminha(fetch.serialize(loc, q=update.message.text)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def messages(bot, update):
