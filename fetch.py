@@ -188,14 +188,7 @@ def inline(loc, query):
 		for i in info:
 
 			title = i["name"]
-			desc = ''
-			if i["type"] == 'theater' and len(i["movies"]) > 0:
-				for movie in i["movies"]:
-					desc += movie["info"]
-
-			if i["type"] == 'movie':
-				for theater in i["theaters"]:
-					desc += theater["info"]
+			desc = i["info"]
 
 			msgtext = cineminha([i])[0]
 			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
