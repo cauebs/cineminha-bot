@@ -1,9 +1,14 @@
 from urllib.request import urlopen
 from urllib.parse import quote
 from bs4 import BeautifulSoup
-from telegram import Emoji, InlineQueryResultArticle, InputTextMessageContent
+from telegram import Emoji, InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
 
-def serialize(url):
+def serialize(near, date=0, time=0, sort=0, q='', hl='pt-br'):
+
+	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(quote(near), date, time, sort, hl)
+	if q!='':
+		url += '&q='+quote(q)
+
 	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")
 	response = []
 
@@ -121,20 +126,13 @@ def serialize(url):
 
 	return response
 
-
-def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
-
-	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(quote(near), date, time, sort, hl)
-	if q!='':
-		url += '&q='+quote(q)
-
-	info = serialize(url)
-
+def cineminha(info):
 	response = []
 
 	if len(info)==0:
 		text = '*Não foi encontrado nenhum resultado.*\nTente outra coisa ou atualize sua localização'
 		response.append(text)
+
 	else:
 		for i in info:
 			if i["type"] == 'theater' and len(i["movies"]) > 0:
@@ -142,10 +140,10 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 				for movie in i["movies"]:
 					t += '\n• '+movie["name"]+' '
 					desc = movie["info"].split('-')
-					if detail and len(desc)>1:
-						t += '\n'+desc[0].strip()+' - '+desc[1].strip()
-					else:
-						t += '('+desc[0].strip()+')'
+					#if detail and len(desc)>1:
+					#	t += '\n'+desc[0].strip()+' - '+desc[1].strip()
+					#else:
+					t += '('+desc[0].strip()+')'
 					t += '\n'
 					if len(movie["times"]["dub"]) > 0:
 						t += 'Dublado: '
@@ -175,15 +173,35 @@ def cineminha(near, date=0, time=0, sort=0, q='', hl='pt-br', detail=False):
 							m += time + '  '
 						m += '\n'
 				response.append(m)
-
 	return response
 
-def inline(query, loc):
-	lista = []
-	c = 0
-	for e in cineminha(loc, sort=1, q=query):
-		message = InputTextMessageContent(e,parse_mode="Markdown")
-		result = InlineQueryResultArticle(str(c),e.split('\n')[0],message,description='\n'.join(e.split('\n')[1:]))
-		lista.append(result)
-		c += 1
-	return lista
+
+def inline(loc, query):
+	results = []
+	info = serialize(loc, q=query, sort=1)
+	if len(info)==0:
+		title = 'Não foi encontrado nenhum resultado'
+		desc = 'Tente outra coisa ou atualize sua localização'
+		msg = InputTextMessageContent('*'+title+'*\n'+desc,parse_mode="Markdown")
+		results.append(InlineQueryResultArticle(0,title,msg,description=desc))
+	else:
+		for i in info:
+
+			title = i["name"]
+			desc = ''
+			if i["type"] == 'theater' and len(i["movies"]) > 0:
+				for movie in i["movies"]:
+					desc += '• '+movie["name"]+'\n'
+
+			if i["type"] == 'movie':
+				for theater in i["theaters"]:
+					desc += '• '+theater["name"]+'\n'
+
+			msgtext = cineminha([i])[0]
+			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
+			results.append(InlineQueryResultArticle(str(len(results)), title, message, description=desc))
+
+	return results
+
+from pprint import pprint
+pprint(inline('Palhoça', 'saf'))

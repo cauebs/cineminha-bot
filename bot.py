@@ -61,7 +61,7 @@ def filmes(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(loc, sort=1):
+		for i in fetch.cineminha(serialize(loc, sort=1)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def cinemas(bot, update):
@@ -69,7 +69,7 @@ def cinemas(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(loc, detail=True):
+		for i in fetch.cineminha(serialize(loc, detail=True)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def pesquisar(bot, update):
@@ -77,7 +77,7 @@ def pesquisar(bot, update):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(loc, q=update.message.text):
+		for i in fetch.cineminha(serialize(loc, q=update.message.text)):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
 def messages(bot, update):
@@ -96,7 +96,7 @@ def messages(bot, update):
 
 def inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
-	results = fetch.inline(update.inline_query.query, loc)
+	results = fetch.inline(loc, update.inline_query.query)
 	bot.answerInlineQuery(update.inline_query.id, results=results)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
