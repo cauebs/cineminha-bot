@@ -191,17 +191,14 @@ def inline(loc, query):
 			desc = ''
 			if i["type"] == 'theater' and len(i["movies"]) > 0:
 				for movie in i["movies"]:
-					desc += '• '+movie["name"]+'\n'
+					desc += movie["info"]
 
 			if i["type"] == 'movie':
 				for theater in i["theaters"]:
-					desc += '• '+theater["name"]+'\n'
+					desc += theater["info"]
 
 			msgtext = cineminha([i])[0]
 			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
 			results.append(InlineQueryResultArticle(str(len(results)), title, message, description=desc))
 
 	return results
-
-from pprint import pprint
-pprint(inline('Palhoça', 'saf'))
