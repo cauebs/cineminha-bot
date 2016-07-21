@@ -97,7 +97,7 @@ def messages(bot, update):
 def inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
 	results = fetch.inline(loc, update.inline_query.query)
-	bot.answerInlineQuery(update.inline_query.id, results=results)
+	bot.answerInlineQuery(update.inline_query.id, results=results, is_personal=True)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', ajuda))
