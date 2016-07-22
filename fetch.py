@@ -9,11 +9,18 @@ def serialize(near, date=0, time=0, sort=0, q='', hl='pt-br'):
 	if q!='':
 		url += '&q='+quote(q)
 
-	soup = BeautifulSoup(urlopen(url).read(),'html.parser').find_all("div", class_="movie_results")
+	soup = BeautifulSoup(urlopen(url).read(),'html.parser')
+	body = soup.find_all("div", class_="movie_results")
 	response = []
 
-	if len(soup) > 0:	
-		for div in soup[0].children:
+	days = []
+	div = soup.find_all("div", class_="section")[1]
+	for i in div.children:
+		days.append(i.get_text().replace('›','').strip())	
+	response.append(days)
+
+	if len(body) > 0:	
+		for div in body[0].children:
 
 			if div["class"][0] == 'theater':
 				theater = {}
@@ -178,7 +185,7 @@ def cineminha(info):
 
 def inline(loc, query):
 	results = []
-	info = serialize(loc, q=query, sort=1)
+	info = serialize(loc, q=query, sort=1)[1:]
 	if len(info)==0:
 		title = 'Não foi encontrado nenhum resultado'
 		desc = 'Tente outra coisa ou atualize sua localização'
@@ -186,12 +193,12 @@ def inline(loc, query):
 		results.append(InlineQueryResultArticle(0,title,msg,description=desc))
 	else:
 		for i in info:
-
 			title = i["name"]
 			desc = i["info"]
-
 			msgtext = cineminha([i])[0]
 			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
 			results.append(InlineQueryResultArticle(str(len(results)), title, message, description=desc))
-
 	return results
+
+a = serialize('Palhoça')
+print(a[0])
