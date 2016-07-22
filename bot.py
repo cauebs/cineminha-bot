@@ -3,7 +3,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHan
 from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
 from textos import *
 from db import DataBase
-from handler import *
 import fetch
 
 TOKEN = os.environ.get('TOKEN')
