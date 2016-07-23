@@ -80,9 +80,9 @@ def cinemas(bot, update, sel=0):
 				sel = 0
 			if sel>len(lista):
 				sel = len(lista)-1
-			ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
+			ante = InlineKeyboardButton('c'+str(sel-1),callback_data='c'+str(sel-1))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data='c'+str(sel+1))
+			prox = InlineKeyboardButton('c'+str(sel+1),callback_data='c'+str(sel+1))
 			keyboard = [[ante, atual, prox]]
 			msgtext = cineminha([lista[sel]])[0]
 			inlinemarkup = InlineKeyboardMarkup(keyboard)
@@ -110,7 +110,7 @@ def handle_message(bot, update):
 #	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
 #	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
 
-def handle_callback(bot, update, update_queue):
+def handle_callback(bot, update):
 	data = update.callback_query.data
 
 	if data[0] == 'c':
@@ -150,7 +150,7 @@ updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
 #updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], handle_location))
 updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
-updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback,pass_update_queue=True))
+updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback))
 updater.dispatcher.add_handler(InlineQueryHandler(handle_inline))
 
 updater.idle()
