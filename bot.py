@@ -1,9 +1,9 @@
 import os
-from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, Filters
-from telegram import ReplyKeyboardMarkup, KeyboardButton, Emoji
-from textos import *
+from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, Emoji
 from db import DataBase
-import fetch
+from fetch import *
+from textos import *
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -33,7 +33,7 @@ def start(bot, update):
 def ajuda(bot, update):
 	bot.sendMessage(update.message.chat_id,text=help_text, parse_mode="Markdown")
 
-def location(bot, update):
+def handle_location(bot, update):
 	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
 	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
@@ -48,31 +48,40 @@ def local(bot, update, args):
 		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
 		db.atualizar_local(tid, loc)
 
-def filmes(bot, update):
+def filmes(bot, update, sel=0):
 	loc = db.get_user_location(update.message.from_user.id)
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(fetch.serialize(loc, sort=1)[1:]):
+		for i in cineminha(serialize(loc, sort=1)[1:]):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
-def cinemas(bot, update):
+def cinemas(bot, update, sel=0):
 	loc = db.get_user_location(update.message.from_user.id)
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(fetch.serialize(loc)[1:]):
-			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
+		serial = serialize(loc)
+		lista = serial[1:]
 
-def pesquisar(bot, update):
+		if len(lista) > 1:
+			ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
+			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
+			prox = InlineKeyboardButton('▶',callback_data='c'+str(sel+1))
+			keyboard = [[ante, atual, prox]]
+			msgtext = cineminha([lista[sel]])[0]
+			inlinemarkup = InlineKeyboardMarkup(keyboard)
+			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=inlinemarkup)
+
+def pesquisar(bot, update, sel=0):
 	loc = db.get_user_location(update.message.from_user.id)
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in fetch.cineminha(fetch.serialize(loc, q=update.message.text)[1:]):
+		for i in cineminha(serialize(loc, q=update.message.text)[1:]):
 			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
 
-def messages(bot, update):
+def handle_message(bot, update):
 	if update.message.text == Emoji.MOVIE_CAMERA + " Listar cinemas":
 		cinemas(bot, update)
 	elif update.message.text == Emoji.CLAPPER_BOARD + " Listar filmes":
@@ -86,17 +95,26 @@ def messages(bot, update):
 #	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
 #	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
 
-def inline(bot, update):
+def handle_callback(bot, update, update_queue):
+	data = update.callback_query.data
+	if data[0] == 'c':
+		i = int(data[1:])
+		cinemas(bot, update, sel=i)
+	#update.callback_query.id
+	#update.callback_query.from_user
+	
+def handle_inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
-	results = fetch.inline(loc, update.inline_query.query)
+	results = inline(loc, update.inline_query.query)
 	bot.answerInlineQuery(update.inline_query.id, results=results, is_personal=True)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', ajuda))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
 #updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
-updater.dispatcher.add_handler(MessageHandler([Filters.location], location))
-updater.dispatcher.add_handler(MessageHandler([Filters.text], messages))
-updater.dispatcher.add_handler(InlineQueryHandler(inline))
+updater.dispatcher.add_handler(MessageHandler([Filters.location], handle_location))
+updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
+updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback,pass_update_queue=True))
+updater.dispatcher.add_handler(InlineQueryHandler(handle_inline))
 
 updater.idle()
