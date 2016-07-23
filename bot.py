@@ -111,17 +111,17 @@ def handle_message(bot, update):
 #	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
 
 def handle_callback(bot, update):
+
 	data = update.callback_query.data
+	loc = db.get_user_location(chat_id)
+	sel = int(data[1:])
+	chat_id = update.callback_query.from_user.id
 
 	if data[0] == 'c':
 		lista = serialize(loc)[1:]
 
 	elif data[0] == 'f':
 		lista = serialize(loc,sort=1)[1:]
-
-	sel = int(data[1:])
-	chat_id = update.callback_query.from_user.id
-	loc = db.get_user_location(chat_id)
 
 	if sel<0:
 		sel = 0
