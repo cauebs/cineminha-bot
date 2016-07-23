@@ -113,9 +113,9 @@ def handle_message(bot, update):
 def handle_callback(bot, update):
 
 	data = update.callback_query.data
+	chat_id = update.callback_query.from_user.id
 	loc = db.get_user_location(chat_id)
 	sel = int(data[1:])
-	chat_id = update.callback_query.from_user.id
 
 	if data[0] == 'c':
 		lista = serialize(loc)[1:]
