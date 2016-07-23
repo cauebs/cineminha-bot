@@ -80,9 +80,9 @@ def cinemas(bot, update, sel=0):
 				sel = 0
 			if sel>len(lista):
 				sel = len(lista)-1
-			ante = InlineKeyboardButton('c'+str(sel-1),callback_data='c'+str(sel-1))
+			ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('c'+str(sel+1),callback_data='c'+str(sel+1))
+			prox = InlineKeyboardButton('▶'+str(sel+1),callback_data='c'+str(sel+1))
 			keyboard = [[ante, atual, prox]]
 			msgtext = cineminha([lista[sel]])[0]
 			inlinemarkup = InlineKeyboardMarkup(keyboard)
@@ -93,8 +93,21 @@ def pesquisar(bot, update, sel=0):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		for i in cineminha(serialize(loc, q=update.message.text)[1:]):
-			bot.sendMessage(update.message.chat_id,text=i, parse_mode="Markdown")
+		lista = serialize(loc, q=update.message.text)[1:]
+
+		if len(lista) > 1:
+			if sel<0:
+				sel = 0
+			if sel>len(lista):
+				sel = len(lista)-1
+
+			ante = InlineKeyboardButton('◀',callback_data='p'+str(sel-1)+' '+update.message.text)
+			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
+			prox = InlineKeyboardButton('▶'+str(sel+1),callback_data='p'+str(sel+1)+' '+update.message.text)
+			keyboard = [[ante, atual, prox]]
+			msgtext = cineminha([lista[sel]])[0]
+			inlinemarkup = InlineKeyboardMarkup(keyboard)
+			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=inlinemarkup)
 
 def handle_message(bot, update):
 	if update.message.text == Emoji.MOVIE_CAMERA + " Listar cinemas":
@@ -115,22 +128,33 @@ def handle_callback(bot, update):
 	data = update.callback_query.data
 	chat_id = update.callback_query.from_user.id
 	loc = db.get_user_location(chat_id)
-	sel = int(data[1:])
 
 	if data[0] == 'c':
 		lista = serialize(loc)[1:]
+		sel = int(data[1:])
 
 	elif data[0] == 'f':
 		lista = serialize(loc,sort=1)[1:]
+		sel = int(data[1:])
+
+	elif data[0] == 'p':
+		q = data[1:].split(' ')[1:]
+		lista = serialize(loc,q=q)[1:]
+		sel = int(data[1:].split(' ')[0])
 
 	if sel<0:
 		sel = 0
 	if sel>len(lista):
 		sel = len(lista)-1
 
-	ante = InlineKeyboardButton('◀',callback_data=data[0]+str(sel-1))
-	atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-	prox = InlineKeyboardButton('▶',callback_data=data[0]+str(sel+1))
+	if data[0] == 'p':
+		ante = InlineKeyboardButton('◀',callback_data='p'+str(sel-1)+' '+q)
+		atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
+		prox = InlineKeyboardButton('▶',callback_data='p'+str(sel+1)+' '+q)
+	else:
+		ante = InlineKeyboardButton('◀',callback_data=data[0]+str(sel-1))
+		atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
+		prox = InlineKeyboardButton('▶',callback_data=data[0]+str(sel+1))
 	keyboard = [[ante, atual, prox]]
 	msgtext = cineminha([lista[sel]])[0]
 
