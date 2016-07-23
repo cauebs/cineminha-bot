@@ -82,7 +82,7 @@ def cinemas(bot, update, sel=0):
 				sel = len(lista)-1
 			ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶'+str(sel+1),callback_data='c'+str(sel+1))
+			prox = InlineKeyboardButton('▶',callback_data='c'+str(sel+1))
 			keyboard = [[ante, atual, prox]]
 			msgtext = cineminha([lista[sel]])[0]
 			inlinemarkup = InlineKeyboardMarkup(keyboard)
@@ -103,7 +103,7 @@ def pesquisar(bot, update, sel=0):
 
 			ante = InlineKeyboardButton('◀',callback_data='p'+str(sel-1)+' '+update.message.text)
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶'+str(sel+1),callback_data='p'+str(sel+1)+' '+update.message.text)
+			prox = InlineKeyboardButton('▶',callback_data='p'+str(sel+1)+' '+update.message.text)
 			keyboard = [[ante, atual, prox]]
 			msgtext = cineminha([lista[sel]])[0]
 			inlinemarkup = InlineKeyboardMarkup(keyboard)
@@ -138,7 +138,7 @@ def handle_callback(bot, update):
 		sel = int(data[1:])
 
 	elif data[0] == 'p':
-		q = data[1:].split(' ')[1:]
+		q = ' '.join(data[1:].split(' ')[1:])
 		lista = serialize(loc,q=q)[1:]
 		sel = int(data[1:].split(' ')[0])
 
