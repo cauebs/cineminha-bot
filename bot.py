@@ -97,11 +97,22 @@ def handle_message(bot, update):
 
 def handle_callback(bot, update, update_queue):
 	data = update.callback_query.data
+
 	if data[0] == 'c':
-		i = int(data[1:])
-		cinemas(bot, update, sel=i)
-	#update.callback_query.id
-	#update.callback_query.from_user
+		sel = int(data[1:])
+		chat_id = update.callback_query.from_user.id
+		loc = db.get_user_location(chat_id)
+		lista = serialize(loc)[1:]
+
+		ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
+		atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
+		prox = InlineKeyboardButton('▶',callback_data='c'+str(sel+1))
+		keyboard = [[ante, atual, prox]]
+		msgtext = cineminha([lista[sel]])[0]
+
+		inlinemarkup = InlineKeyboardMarkup(keyboard)
+
+		bot.editMessageText(text=msgtext, chat_id=chat_id, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
 	
 def handle_inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
