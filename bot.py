@@ -53,8 +53,7 @@ def filmes(bot, update, sel=0):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		serial = serialize(loc,sort=1)
-		lista = serial[1:]
+		lista = serialize(loc,sort=1)[1:]
 
 		if len(lista) > 1:
 			if sel<0:
@@ -74,8 +73,7 @@ def cinemas(bot, update, sel=0):
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
 	else:
-		serial = serialize(loc)
-		lista = serial[1:]
+		lista = serialize(loc)[1:]
 
 		if len(lista) > 1:
 			if sel<0:

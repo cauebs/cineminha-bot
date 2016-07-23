@@ -199,6 +199,3 @@ def inline(loc, query):
 			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
 			results.append(InlineQueryResultArticle(str(len(results)), title, message, description=desc))
 	return results
-
-a = serialize('Palhoça')
-print(a[0])
