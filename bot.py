@@ -1,9 +1,12 @@
-import os
+import os, sys
 from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, Emoji
 from db import DataBase
 from fetch import *
 from textos import *
+
+print "hello world"
+sys.stdout.flush()
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -95,7 +98,11 @@ def listar(bot, update, mode=0, q='', date=0):
 			days_buttons = []
 			for day in days:
 				day_number = days.index(day)
-				days_buttons.append(InlineKeyboardButton(day.replace('-feira'),callback_data=str(mode)+'#0#'+q+'#'+str(day_number)))
+				if day_number == date:
+					label = '« '+day.replace('-feira')+' »'
+				else:
+					label = day.replace('-feira')
+				days_buttons.append(InlineKeyboardButton(label,callback_data=str(mode)+'#0#'+q+'#'+str(day_number)))
 			keyboard.append(days_buttons)
 
 		if len(keyboard)==0:
