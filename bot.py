@@ -65,6 +65,7 @@ def listar(bot, update, mode=0, q='', date=0):
 		mode = int(data[0])
 		sel = int(data[1])
 		q = data[2]
+		date = data[3]
 		edit=True
 
 	loc = db.get_user_location(uid)
@@ -83,22 +84,25 @@ def listar(bot, update, mode=0, q='', date=0):
 			sel = n-1
 
 		if n > 1:
-			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q)
+			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q+'#'+str(date))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(n),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'#'+str(sel+1)+'#'+q)
+			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'#'+str(sel+1)+'#'+q+'#'+str(date))
 			keyboard = [[ante, atual, prox]]
+			if len(days)>1:
+				days_buttons = []
+				for day in days:
+					days_buttons.append(InlineKeyboardButton(day,callback_data=str(mode)+'#0#'+q+'#'+str(days.index(day))))
+				keyboard.append(days_buttons)
 			markup = InlineKeyboardMarkup(keyboard)
 		else:
 			markup = buttons_markup
+			
 		msgtext = cineminha(lista)[sel]
 
 		if edit:
 			a = bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=markup)
 		else:
 			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
-
-def handle_callback(bot, update):
-	listar(bot, update)
 
 def handle_inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
@@ -110,7 +114,7 @@ updater.dispatcher.add_handler(CommandHandler('help', ajuda))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], handle_location))
 updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
-updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback))
+updater.dispatcher.add_handler(CallbackQueryHandler(listar))
 updater.dispatcher.add_handler(InlineQueryHandler(handle_inline))
 
 updater.idle()
