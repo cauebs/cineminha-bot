@@ -21,5 +21,5 @@ feedback_text = Emoji.WHITE_MEDIUM_STAR+''' *Sua mensagem foi enviada anonimamen
 Se deseja conversar com o desenvolvedor, contate-o em @cauebs'''
 
 help_text = '''• Use os botões abaixo para listar cinemas ou filmes.
-• Me envie uma mensagem a qualquer momento para pesquisar
+• Envie uma mensagem a qualquer momento para pesquisar
 • Atualize o seu local enviando uma localização ou enviando /local _seu-local-aqui_'''

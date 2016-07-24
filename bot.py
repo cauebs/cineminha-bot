@@ -17,151 +17,89 @@ updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 db = DataBase()
 
-location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Atualizar localização",request_location=True)
+location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
 cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
 filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
 pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
 keyboard = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
-rep_markup = ReplyKeyboardMarkup(keyboard)
+buttons_markup = ReplyKeyboardMarkup(keyboard)
 
 def start(bot, update):
-	location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
-	keyboard = [[location_button]]
-	start_markup = ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
+	start_markup = ReplyKeyboardMarkup([[location_button]],one_time_keyboard=True)
 	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=start_markup, parse_mode="Markdown")
 
 def ajuda(bot, update):
-	bot.sendMessage(update.message.chat_id,text=help_text, parse_mode="Markdown")
+	bot.sendMessage(update.message.chat_id,text=help_text, parse_mode="Markdown", reply_markup=buttons_markup)
 
 def handle_location(bot, update):
-	tid = str(update.message.from_user.id)
 	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
-	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
-	db.atualizar_local(tid, loc)
+	db.atualizar_local(update.message.from_user.id, loc)
+	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=buttons_markup)
 
 def local(bot, update, args):
 	if len(args)==0:
 		bot.sendMessage(update.message.chat_id,text=local_vazio_text, parse_mode="Markdown")
 	else:
-		tid = str(update.message.from_user.id)
-		loc = "'"+" ".join(args)+"'"
-		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=rep_markup)
-		db.atualizar_local(tid, loc)
-
-def filmes(bot, update, sel=0):
-	loc = db.get_user_location(update.message.from_user.id)
-	if loc is None:
-		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
-	else:
-		lista = serialize(loc,sort=1)[1:]
-
-		if len(lista) > 1:
-			if sel<0:
-				sel = 0
-			if sel>len(lista):
-				sel = len(lista)-1
-			ante = InlineKeyboardButton('◀',callback_data='f'+str(sel-1))
-			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data='f'+str(sel+1))
-			keyboard = [[ante, atual, prox]]
-			msgtext = cineminha([lista[sel]])[0]
-			inlinemarkup = InlineKeyboardMarkup(keyboard)
-			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=inlinemarkup)
-
-def cinemas(bot, update, sel=0):
-	loc = db.get_user_location(update.message.from_user.id)
-	if loc is None:
-		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
-	else:
-		lista = serialize(loc)[1:]
-
-		if len(lista) > 1:
-			if sel<0:
-				sel = 0
-			if sel>len(lista):
-				sel = len(lista)-1
-			ante = InlineKeyboardButton('◀',callback_data='c'+str(sel-1))
-			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data='c'+str(sel+1))
-			keyboard = [[ante, atual, prox]]
-			msgtext = cineminha([lista[sel]])[0]
-			inlinemarkup = InlineKeyboardMarkup(keyboard)
-			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=inlinemarkup)
-
-def pesquisar(bot, update, sel=0):
-	loc = db.get_user_location(update.message.from_user.id)
-	if loc is None:
-		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown")
-	else:
-		lista = serialize(loc, q=update.message.text)[1:]
-
-		if len(lista) > 1:
-			if sel<0:
-				sel = 0
-			if sel>len(lista):
-				sel = len(lista)-1
-
-			ante = InlineKeyboardButton('◀',callback_data='p'+str(sel-1)+' '+update.message.text)
-			atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data='p'+str(sel+1)+' '+update.message.text)
-			keyboard = [[ante, atual, prox]]
-			msgtext = cineminha([lista[sel]])[0]
-			inlinemarkup = InlineKeyboardMarkup(keyboard)
-			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=inlinemarkup)
+		db.atualizar_local(update.message.from_user.id, "'"+" ".join(args)+"'")
+		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=buttons_markup)
 
 def handle_message(bot, update):
-	if update.message.text == Emoji.MOVIE_CAMERA + " Listar cinemas":
-		cinemas(bot, update)
-	elif update.message.text == Emoji.CLAPPER_BOARD + " Listar filmes":
-		filmes(bot, update)
-	elif update.message.text == Emoji.RIGHT_POINTING_MAGNIFYING_GLASS + " Pesquisar":
+	txt = update.message.text
+	if txt == Emoji.MOVIE_CAMERA + " Listar cinemas":
+		listar(bot, update, mode=0)
+	elif txt == Emoji.CLAPPER_BOARD + " Listar filmes":
+		listar(bot, update, mode=1)
+	elif txt == Emoji.RIGHT_POINTING_MAGNIFYING_GLASS + " Pesquisar":
 		bot.sendMessage(update.message.chat_id,text=pesquisar_text, parse_mode="Markdown")
 	else:
-		pesquisar(bot, update)
+		listar(bot, update, mode=2, q=txt)
 
-#def feedback(bot, update, args):
-#	bot.sendMessage(61407387,text='Feedback: '+" ".join(args), parse_mode="Markdown")
-#	bot.sendMessage(update.message.chat_id,text=feedback_text, parse_mode="Markdown")
+def listar(bot, update, mode=0, q='', date=0):
+	if update.callback_query is None:
+		uid = update.message.from_user.id
+		sel=0
+		edit=False
+	else:
+		uid = update.callback_query.from_user.id
+		data = update.callback_query.data.split('#')
+		mode = int(data[0])
+		sel = int(data[1])
+		q = data[2]
+		edit=True
+
+	loc = db.get_user_location(uid)
+	if loc is None:
+		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown", reply_markup=buttons_markup)
+	else:
+
+		serial = serialize(loc,sort=mode,q=q,date=date)
+		lista = serial[1:]
+		days = serial[0]
+		n = len(lista)
+
+		if sel<0:
+			sel = 0
+		if sel>=n:
+			sel = n-1
+
+		if n > 1:
+			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q)
+			atual = InlineKeyboardButton(str(sel+1)+'/'+str(n),switch_inline_query=lista[sel]["name"])
+			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'#'+str(sel+1)+'#'+q)
+			keyboard = [[ante, atual, prox]]
+			markup = InlineKeyboardMarkup(keyboard)
+		else:
+			markup = buttons_markup
+
+		msgtext = cineminha(lista)[sel]
+
+		if !edit:
+			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
+		else:
+			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
 
 def handle_callback(bot, update):
-
-	data = update.callback_query.data
-	chat_id = update.callback_query.from_user.id
-	loc = db.get_user_location(chat_id)
-
-	if data[0] == 'c':
-		lista = serialize(loc)[1:]
-		sel = int(data[1:])
-
-	elif data[0] == 'f':
-		lista = serialize(loc,sort=1)[1:]
-		sel = int(data[1:])
-
-	elif data[0] == 'p':
-		q = ' '.join(data[1:].split(' ')[1:])
-		lista = serialize(loc,q=q)[1:]
-		sel = int(data[1:].split(' ')[0])
-
-	if sel<0:
-		sel = 0
-	if sel>len(lista):
-		sel = len(lista)-1
-
-	if data[0] == 'p':
-		ante = InlineKeyboardButton('◀',callback_data='p'+str(sel-1)+' '+q)
-		atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-		prox = InlineKeyboardButton('▶',callback_data='p'+str(sel+1)+' '+q)
-	else:
-		ante = InlineKeyboardButton('◀',callback_data=data[0]+str(sel-1))
-		atual = InlineKeyboardButton(str(sel+1)+'/'+str(len(lista)),switch_inline_query=lista[sel]["name"])
-		prox = InlineKeyboardButton('▶',callback_data=data[0]+str(sel+1))
-	keyboard = [[ante, atual, prox]]
-	msgtext = cineminha([lista[sel]])[0]
-
-	inlinemarkup = InlineKeyboardMarkup(keyboard)
-
-	bot.editMessageText(text=msgtext, chat_id=chat_id, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
-
+	listar(bot, update)
 
 def handle_inline(bot, update):
 	loc = db.get_user_location(update.inline_query.from_user.id)
@@ -171,7 +109,6 @@ def handle_inline(bot, update):
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', ajuda))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
-#updater.dispatcher.add_handler(CommandHandler('feedback', feedback, pass_args=True))
 updater.dispatcher.add_handler(MessageHandler([Filters.location], handle_location))
 updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
 updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback))
