@@ -95,11 +95,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			days_buttons = []
 			for day in days:
 				day_number = days.index(day)
-				if day_number == date:
-					label = '« '+day.replace('-feira')+' »'
-				else:
-					label = day.replace('-feira')
-				days_buttons.append(InlineKeyboardButton(label,callback_data=str(mode)+'#0#'+q+'#'+str(day_number)))
+				days_buttons.append(InlineKeyboardButton(day.replace('-feira'),callback_data=str(mode)+'#0#'+q+'#'+str(day_number)))
 			keyboard.append(days_buttons)
 
 		if len(keyboard)==0:
