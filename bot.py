@@ -93,10 +93,10 @@ def listar(bot, update, mode=0, q='', date=0):
 
 		msgtext = cineminha(lista)[sel]
 
-		if !edit:
-			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
-		else:
+		if edit:
 			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
+		else:
+			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
 def handle_callback(bot, update):
 	listar(bot, update)
