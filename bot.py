@@ -21,7 +21,7 @@ location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",req
 cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
 filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
 pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-commandkeys = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
+keyboard = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
 buttons_markup = ReplyKeyboardMarkup(keyboard)
 
 def start(bot, update):
@@ -106,7 +106,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			markup = buttons_markup
 		else:
 			markup = InlineKeyboardMarkup(keyboard)
-			
+
 		msgtext = cineminha(lista)[sel]
 
 		if edit:
