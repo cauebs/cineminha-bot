@@ -5,7 +5,7 @@ from db import DataBase
 from fetch import *
 from textos import *
 
-print "hello world"
+print("Starting!")
 sys.stdout.flush()
 
 TOKEN = os.environ.get('TOKEN')
