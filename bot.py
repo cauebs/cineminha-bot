@@ -69,12 +69,16 @@ def listar(bot, update, mode=0, q='', date=0):
 		sel = int(data[1])
 		q = data[2]
 		edit=True
+	print(uid)
+	print(mode)
+	print(sel)
+	print(q)
 
 	loc = db.get_user_location(uid)
 	if loc is None:
 		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown", reply_markup=buttons_markup)
 	else:
-
+		print(loc)
 		serial = serialize(loc,sort=mode,q=q,date=date)
 		lista = serial[1:]
 		days = serial[0]
@@ -84,7 +88,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			sel = 0
 		if sel>=n:
 			sel = n-1
-
+		print(n)
 		if n > 1:
 			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q)
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(n),switch_inline_query=lista[sel]["name"])
@@ -93,7 +97,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			markup = InlineKeyboardMarkup(keyboard)
 		else:
 			markup = buttons_markup
-
+		print("hello!")
 		msgtext = cineminha(lista)[sel]
 
 		if edit:
