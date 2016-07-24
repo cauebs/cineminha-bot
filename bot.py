@@ -21,7 +21,7 @@ location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",req
 cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
 filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
 pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-keyboard = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
+commandkeys = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
 buttons_markup = ReplyKeyboardMarkup(keyboard)
 
 def start(bot, update):
@@ -61,7 +61,7 @@ def listar(bot, update, mode=0, q='', date=0):
 		edit=False
 	else:
 		uid = update.callback_query.from_user.id
-		data = update.callback_query.data.split('~')
+		data = update.callback_query.data.split('#')
 		mode = int(data[0])
 		sel = int(data[1])
 		q = data[2]
@@ -83,19 +83,29 @@ def listar(bot, update, mode=0, q='', date=0):
 		if sel>=n:
 			sel = n-1
 
+		keyboard = []
+
 		if n > 1:
-			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'~'+str(sel-1)+'~'+q+'~'+str(date))
+			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q+'#'+str(date))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(n),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'~'+str(sel+1)+'~'+q+'~'+str(date))
-			keyboard = [[ante, atual, prox]]
-			if len(days)>1:
-				days_buttons = []
-				for day in days:
-					days_buttons.append(InlineKeyboardButton(day.replace('-feira'),callback_data=str(mode)+'~0~'+q+'~'+str(days.index(day))))
-				keyboard.append(days_buttons)
-			markup = InlineKeyboardMarkup(keyboard)
-		else:
+			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'#'+str(sel+1)+'#'+q+'#'+str(date))
+			keyboard.append([ante, atual, prox])
+
+		if len(days)>1:
+			days_buttons = []
+			for day in days:
+				day_number = days.index(day)
+				if day_number == date:
+					label = '« '+day.replace('-feira')+' »'
+				else:
+					label = day.replace('-feira')
+				days_buttons.append(InlineKeyboardButton(label,callback_data=str(mode)+'#0#'+q+'#'+str(day_number)))
+			keyboard.append(days_buttons)
+
+		if len(keyboard)==0:
 			markup = buttons_markup
+		else:
+			markup = InlineKeyboardMarkup(keyboard)
 			
 		msgtext = cineminha(lista)[sel]
 
