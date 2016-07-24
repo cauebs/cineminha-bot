@@ -1,12 +1,9 @@
-import os, sys
+import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, Emoji
 from db import DataBase
 from fetch import *
 from textos import *
-
-print("Starting!")
-sys.stdout.flush()
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -68,7 +65,7 @@ def listar(bot, update, mode=0, q='', date=0):
 		mode = int(data[0])
 		sel = int(data[1])
 		q = data[2]
-		date = data[3]
+		date = int(data[3])
 		edit=True
 
 	loc = db.get_user_location(uid)
