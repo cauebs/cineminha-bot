@@ -199,3 +199,5 @@ def inline(loc, query):
 			message = InputTextMessageContent(msgtext, parse_mode="Markdown")
 			results.append(InlineQueryResultArticle(str(len(results)), title, message, description=desc))
 	return results
+
+print(serialize('palhoça',q="era do gelo 3d continente",sort=2))

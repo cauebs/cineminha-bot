@@ -61,7 +61,7 @@ def listar(bot, update, mode=0, q='', date=0):
 		edit=False
 	else:
 		uid = update.callback_query.from_user.id
-		data = update.callback_query.data.split('#')
+		data = update.callback_query.data.split('~')
 		mode = int(data[0])
 		sel = int(data[1])
 		q = data[2]
@@ -84,14 +84,14 @@ def listar(bot, update, mode=0, q='', date=0):
 			sel = n-1
 
 		if n > 1:
-			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'#'+str(sel-1)+'#'+q+'#'+str(date))
+			ante = InlineKeyboardButton('◀',callback_data=str(mode)+'~'+str(sel-1)+'~'+q+'~'+str(date))
 			atual = InlineKeyboardButton(str(sel+1)+'/'+str(n),switch_inline_query=lista[sel]["name"])
-			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'#'+str(sel+1)+'#'+q+'#'+str(date))
+			prox = InlineKeyboardButton('▶',callback_data=str(mode)+'~'+str(sel+1)+'~'+q+'~'+str(date))
 			keyboard = [[ante, atual, prox]]
 			if len(days)>1:
 				days_buttons = []
 				for day in days:
-					days_buttons.append(InlineKeyboardButton(day,callback_data=str(mode)+'#0#'+q+'#'+str(days.index(day))))
+					days_buttons.append(InlineKeyboardButton(day.replace('-feira'),callback_data=str(mode)+'~0~'+q+'~'+str(days.index(day))))
 				keyboard.append(days_buttons)
 			markup = InlineKeyboardMarkup(keyboard)
 		else:
