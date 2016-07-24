@@ -55,11 +55,14 @@ def handle_message(bot, update):
 		listar(bot, update, mode=2, q=txt)
 
 def listar(bot, update, mode=0, q='', date=0):
+	print("listar")
 	if update.callback_query is None:
+		print("no callback")
 		uid = update.message.from_user.id
 		sel=0
 		edit=False
 	else:
+		print("callback found")
 		uid = update.callback_query.message.from_user.id
 		data = update.callback_query.data.split('#')
 		mode = int(data[0])
@@ -95,6 +98,8 @@ def listar(bot, update, mode=0, q='', date=0):
 
 		if edit:
 			print("Edit!")
+			print(uid)
+			print(update.callback_query.message.message_id)
 			a = bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
 			if a!=True:
 				print(a.text)
@@ -105,6 +110,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
 def handle_callback(bot, update):
+	print("callback received")
 	listar(bot, update)
 
 def handle_inline(bot, update):
