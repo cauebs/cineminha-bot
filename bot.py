@@ -63,7 +63,7 @@ def listar(bot, update, mode=0, q='', date=0):
 		edit=False
 	else:
 		print("callback found")
-		uid = update.callback_query.message.from_user.id
+		uid = update.callback_query.from_user.id
 		data = update.callback_query.data.split('#')
 		mode = int(data[0])
 		sel = int(data[1])
