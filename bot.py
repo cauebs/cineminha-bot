@@ -95,7 +95,10 @@ def listar(bot, update, mode=0, q='', date=0):
 
 		if edit:
 			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
-			bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
+			print(uid)
+			print(update.callback_query.message.message_id)
+			print(data)
+			print(msgtext)
 		else:
 			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
