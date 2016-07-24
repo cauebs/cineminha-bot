@@ -56,13 +56,11 @@ def handle_message(bot, update):
 
 def listar(bot, update, mode=0, q='', date=0):
 	if update.callback_query is None:
-		print('CALLBACK_QUERY NOT FOUND')
 		uid = update.message.from_user.id
 		sel=0
 		edit=False
 	else:
-		print('CALLBACK_QUERY DETECTED')
-		uid = update.callback_query.from_user.id
+		uid = update.callback_query.message.from_user.id
 		data = update.callback_query.data.split('#')
 		mode = int(data[0])
 		sel = int(data[1])
@@ -94,15 +92,9 @@ def listar(bot, update, mode=0, q='', date=0):
 			markup = buttons_markup
 
 		msgtext = cineminha(lista)[sel]
-		print(sel)
-		print(msgtext)
 
 		if edit:
-			print(uid)
-			print(update.callback_query.message.message_id)
-			print(data)
-			print(msgtext)
-			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup)
+			print(bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=inlinemarkup))
 		else:
 			bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
