@@ -53,7 +53,7 @@ def handle_message(bot, update):
 	else:
 		listar(bot, update, mode=2, q=txt)
 
-def listar(bot, update, mode=0, q=''):
+def listar(bot, update, mode=0, q='', date=0):
 	uid = update.message.from_user.id
 	loc = db.get_user_location(uid)
 	if loc is None:
@@ -65,17 +65,34 @@ def listar(bot, update, mode=0, q=''):
 		n = len(lista)
 
 		keyboard = []
+		if len(lista)>1:
+			for item in lista:
+				button = InlineKeyboardButton(item["name"],callback_data=str(0)+'#'+item["name"]+'#0')
+				keyboard.append([button])
 
-		for item in lista:
-			button = InlineKeyboardButton(item["name"],callback_data=str(0)+'#'+item["name"]+'#0')
-			keyboard.append([button])
+			if len(keyboard)==0:
+				markup = buttons_markup
+				msgtext = '*Não foi encontrado nenhum resultado.*\nTente outra coisa ou atualize sua localização'
+			else:
+				markup = InlineKeyboardMarkup(keyboard)
+				msgtext = 'Selecione um para obter mais informações:'
 
-		if len(keyboard)==0:
-			markup = buttons_markup
-			msgtext = '*Não foi encontrado nenhum resultado.*\nTente outra coisa ou atualize sua localização'
 		else:
-			markup = InlineKeyboardMarkup(keyboard)
-			msgtext = 'Selecione um para obter mais informações:'
+			days = serial[0]
+			msgtext = cineminha(lista)[0]
+
+			if len(days)>1:
+				buttons = []
+				for day in days:
+					day_number = str(days.index(day))
+					if day_number == date:
+						label = '« '+day.replace('-feira','')+' »'
+					else:
+						label = day.replace('-feira','')
+					buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
+				markup = InlineKeyboardMarkup([buttons])
+			else:
+				markup = buttons_markup
 
 		bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
