@@ -121,11 +121,13 @@ def handle_inline(bot, update):
 	bot.answerInlineQuery(update.inline_query.id, results=results, is_personal=True)
 
 def announce(bot, update, args):
+	print('announcement!')
 	if update.message.from_user.id == 61407387:
 		msg = " ".join(args)
 		db.cur.execute("SELECT id FROM users")
 		lista = db.cur.fetchall()
 		for user in lista:
+			print('announcement to '+str(user[0]))
 			bot.sendMessage(user[0],text=msg,parse_mode="Markdown",disable_notification=True,reply_markup=buttons_markup)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
