@@ -13,13 +13,12 @@ local_vazio_text = Emoji.BLACK_QUESTION_MARK_ORNAMENT+''' *Favor inserir alguma 
 /local _Trindade Florianópolis_
 /local _São José SC_'''
 
-pesquisar_text = Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+''' Me envie qualquer mensagem para pesquisar!'''
+pesquisar_text = '''Me envie qualquer coisa para pesquisar:'''
 
 local_nao_definido = Emoji.BLACK_QUESTION_MARK_ORNAMENT+''' Primeiro defina o local com /local ou enviando uma localização!'''
 
-feedback_text = Emoji.WHITE_MEDIUM_STAR+''' *Sua mensagem foi enviada anonimamente*
-Se deseja conversar com o desenvolvedor, contate-o em @cauebs'''
-
 help_text = '''• Use os botões abaixo para listar cinemas ou filmes.
 • Envie uma mensagem a qualquer momento para pesquisar
-• Atualize o seu local enviando uma localização ou enviando /local _seu-local-aqui_'''
+• Atualize o seu local enviando uma localização ou enviando /local _seu-local-aqui_
+
+Caso tenha qualquer dúvida, crítica ou sugestão, venha falar comigo! - @cauebs'''
