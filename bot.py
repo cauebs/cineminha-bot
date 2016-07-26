@@ -5,7 +5,7 @@ from db import DataBase
 from fetch import *
 from textos import *
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s(%(lineno)d) - %(message)s',level=logging.INFO)
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -16,11 +16,11 @@ updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 db = DataBase()
 
-location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
-cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
 filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
+cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
 pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-keyboard = [[cinemas_button],[filmes_button],[pesquisar_button],[location_button]]
+location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
+keyboard = [[filmes_button],[cinemas_button],[pesquisar_button],[location_button]]
 buttons_markup = ReplyKeyboardMarkup(keyboard)
 
 def start(bot, update):
@@ -126,7 +126,7 @@ def announce(bot, update, args):
 		db.cur.execute("SELECT id FROM users")
 		lista = db.cur.fetchall()
 		for user in lista:
-			bot.sendMessage(user[0],text=msg,parse_mode="Markdown",disable_notification=True)
+			bot.sendMessage(user[0],text=msg,parse_mode="Markdown",disable_notification=True,reply_markup=buttons_markup)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', ajuda))
