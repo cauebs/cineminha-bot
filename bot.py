@@ -1,66 +1,79 @@
-import os, logging
+import os, logging, textos
 from telegram.ext import Updater, CommandHandler, MessageHandler, InlineQueryHandler, CallbackQueryHandler, Filters
-from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, Emoji, ForceReply
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, Emoji
 from db import DataBase
 from fetch import *
-from textos import *
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s(%(lineno)d) - %(message)s',level=logging.INFO)
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
+lang = os.environ.get('lang')
 PORT = int(os.environ.get('PORT', '5000'))
 updater = Updater(TOKEN)
-updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
+#updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+updater.bot.setWebhook()#"https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 db = DataBase()
 
-filmes_button = KeyboardButton(Emoji.CLAPPER_BOARD+" Listar filmes")
-cinemas_button = KeyboardButton(Emoji.MOVIE_CAMERA+" Listar cinemas")
-pesquisar_button = KeyboardButton(Emoji.RIGHT_POINTING_MAGNIFYING_GLASS+" Pesquisar")
-location_button = KeyboardButton(Emoji.ROUND_PUSHPIN+" Enviar localização",request_location=True)
-keyboard = [[filmes_button],[cinemas_button],[pesquisar_button],[location_button]]
-buttons_markup = ReplyKeyboardMarkup(keyboard)
+def buttons_markup(lang):
+	return ReplyKeyboardMarkup([
+		[KeyboardButton(textos.buttons[lang][0])],
+		[KeyboardButton(textos.buttons[lang][1])],
+		[KeyboardButton(textos.buttons[lang][2],request_location=True)],
+		[KeyboardButton(textos.buttons[lang][3])]
+	])
 
 def start(bot, update):
-	start_markup = ReplyKeyboardMarkup([[location_button]],one_time_keyboard=True)
-	bot.sendMessage(update.message.chat_id, text=start_text, reply_markup=start_markup, parse_mode="Markdown")
+	uid = update.message.from_user.id
+	loc = db.get_loc(uid)
+	if loc is None:
+		start_markup = ReplyKeyboardMarkup([[KeyboardButton(textos.buttons["pt-br"][2],request_location=True)]])
+		bot.sendMessage(uid, text=textos.start[lang], reply_markup=start_markup, parse_mode="Markdown")
+	else:
+		bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 
-def ajuda(bot, update):
-	bot.sendMessage(update.message.chat_id,text=help_text, parse_mode="Markdown", reply_markup=buttons_markup)
+def help(bot, update):
+	uid = update.message.from_user.id
+	bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 
 def handle_location(bot, update):
-	loc = "'"+str(update.message.location.latitude)+", "+str(update.message.location.longitude)+"'"
-	db.atualizar_local(update.message.from_user.id, loc)
-	bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=buttons_markup)
+	uid = update.message.from_user.id
+	loc = str(update.message.location.latitude)+", "+str(update.message.location.longitude)
+	if db.set_loc(uid, loc):
+		bot.sendMessage(uid,text=textos.loc_updated[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
+	else:
+		bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 
 def local(bot, update, args):
+	uid = update.message.from_user.id
 	if len(args)==0:
-		bot.sendMessage(update.message.chat_id,text=local_vazio_text, parse_mode="Markdown")
+		bot.sendMessage(uid,text=textos.loc_empty[lang], parse_mode="Markdown")
 	else:
-		db.atualizar_local(update.message.from_user.id, "'"+" ".join(args)+"'")
-		bot.sendMessage(update.message.chat_id,text=local_atualizado_text, parse_mode="Markdown", reply_markup=buttons_markup)
+		if db.set_loc(uid, " ".join(args)):
+			bot.sendMessage(uid,text=textos.loc_updated[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
+		else:
+			bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 
 def handle_message(bot, update):
+	uid = update.message.from_user.id
 	txt = update.message.text
-	if txt == Emoji.MOVIE_CAMERA + " Listar cinemas":
-		listar(bot, update, mode=0)
-	elif txt == Emoji.CLAPPER_BOARD + " Listar filmes":
+	if txt == textos.buttons[lang][0]:
 		listar(bot, update, mode=1)
-	elif txt == Emoji.RIGHT_POINTING_MAGNIFYING_GLASS + " Pesquisar":
-		bot.sendMessage(update.message.chat_id,text=pesquisar_text, parse_mode="Markdown", reply_markup=ForceReply(force_reply=True))
+	elif txt == textos.buttons[lang][1]:
+		listar(bot, update, mode=0)
+	elif txt == textos.buttons[lang][3]:
+		bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
 		listar(bot, update, mode=2, q=txt)
 
 def listar(bot, update, mode=0, q='', date=0):
 	uid = update.message.from_user.id
-	loc = db.get_user_location(uid)
+	loc = db.get_loc(uid)
 	if loc is None:
-		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown", reply_markup=buttons_markup)
+		bot.sendMessage(uid,text=textos.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
-
-		serial = serialize(loc,sort=mode,q=q)
+		serial = serialize(loc, sort=mode, q=q)
 		lista = serial[1:]
 		n = len(lista)
 
@@ -71,11 +84,11 @@ def listar(bot, update, mode=0, q='', date=0):
 				keyboard.append([button])
 
 			if len(keyboard)==0:
-				markup = buttons_markup
-				msgtext = '*Não foi encontrado nenhum resultado.*\nTente outra coisa ou atualize sua localização'
+				markup = buttons_markup(lang)
+				msgtext = textos.no_results[lang]
 			else:
 				markup = InlineKeyboardMarkup(keyboard)
-				msgtext = 'Selecione um para obter mais informações:'
+				msgtext = textos.results[lang]
 
 		else:
 			days = serial[0]
@@ -85,23 +98,22 @@ def listar(bot, update, mode=0, q='', date=0):
 				buttons = []
 				for day in days:
 					day_number = str(days.index(day))
-					if day_number == date:
-						label = '« '+day.replace('-feira','')+' »'
-					else:
+					if lang == "pt-br":
 						label = day.replace('-feira','')
+					if day_number == date:
+						label = '« '+day+' »'
 					buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
 				markup = InlineKeyboardMarkup([buttons])
 			else:
-				markup = buttons_markup
+				markup = buttons_markup(lang)
 
-		bot.sendMessage(update.message.chat_id,text=msgtext, parse_mode="Markdown", reply_markup=markup)
+		bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
 def handle_callback(bot, update):
-
 	uid = update.callback_query.from_user.id
-	loc = db.get_user_location(uid)
+	loc = db.get_loc(uid)
 	if loc is None:
-		bot.sendMessage(update.message.chat_id,text=local_nao_definido, parse_mode="Markdown", reply_markup=buttons_markup)
+		bot.sendMessage(uid,text=textos.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
 
 		data = update.callback_query.data.split('#')
@@ -109,7 +121,7 @@ def handle_callback(bot, update):
 		q = data[1]
 		date = data[2]
 
-		serial = serialize(loc,q=q, date=date)
+		serial = serialize(loc, q=q, date=date)
 		lista = serial[1:]
 		days = serial[0]
 		msgtext = cineminha(lista)[0]
@@ -118,14 +130,14 @@ def handle_callback(bot, update):
 			buttons = []
 			for day in days:
 				day_number = str(days.index(day))
-				if day_number == date:
-					label = '« '+day.replace('-feira','')+' »'
-				else:
+				if lang == "pt-br":
 					label = day.replace('-feira','')
+				if day_number == date:
+					label = '« '+day+' »'
 				buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
 			markup = InlineKeyboardMarkup([buttons])
 		else:
-			markup = buttons_markup
+			markup = buttons_markup(lang)
 
 		if mode==0:
 			bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
@@ -133,15 +145,28 @@ def handle_callback(bot, update):
 			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=markup)
 
 def handle_inline(bot, update):
-	loc = db.get_user_location(update.inline_query.from_user.id)
-	results = inline(loc, update.inline_query.query)
+	uid = update.inline_query.from_user.id
+	loc = db.get_loc(uid)
+	results = inline(loc, update.inline_query.query, lang)
 	bot.answerInlineQuery(update.inline_query.id, results=results, is_personal=True)
 
+def movies(bot, update):
+	listar(bot, update, mode=1)
+
+def theaters(bot, update):
+	listar(bot, update, mode=0)
+
 updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('help', ajuda))
+updater.dispatcher.add_handler(CommandHandler(textos.command[lang][0], movies))
+updater.dispatcher.add_handler(CommandHandler(textos.command[lang][1], theaters))
+updater.dispatcher.add_handler(CommandHandler(textos.command[lang][2], help))
 updater.dispatcher.add_handler(CommandHandler('local', local, pass_args=True))
+
 updater.dispatcher.add_handler(MessageHandler([Filters.location], handle_location))
 updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
+
 updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback))
 updater.dispatcher.add_handler(InlineQueryHandler(handle_inline))
+
+updater.start_polling()
 updater.idle()

@@ -16,15 +16,17 @@ class DataBase():
 		)
 		self.cur = self.conn.cursor()
 
-	def get_user_location(self, tid):
-		self.cur.execute("SELECT location FROM users WHERE id="+str(tid))
+	def get_loc(self, uid):
+		self.cur.execute("SELECT location FROM users WHERE id="+str(uid))
 		return self.cur.fetchone()[0]
 
-	def atualizar_local(self, tid, loc):
-		self.cur.execute("SELECT * FROM users WHERE id="+str(tid))
+	def set_loc(self, uid, loc):
+		self.cur.execute("SELECT * FROM users WHERE id="+str(uid))
 		if self.cur.fetchone() is None:
-			self.cur.execute("INSERT INTO users VALUES ("+str(tid)+", "+loc+");")
+			self.cur.execute("INSERT INTO users (id, location, language) VALUES ("+str(uid)+', \''+loc+'\', \'en\');')
 			self.conn.commit()
+			return False
 		else:
-			self.cur.execute("UPDATE users SET location="+loc+" WHERE id="+str(tid)+";")
+			self.cur.execute('UPDATE users SET location=\''+loc+'\' WHERE id='+str(uid))
 			self.conn.commit()
+			return True
