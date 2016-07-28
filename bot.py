@@ -11,8 +11,8 @@ APPNAME = os.environ.get('APPNAME')
 lang = os.environ.get('lang')
 PORT = int(os.environ.get('PORT', '5000'))
 updater = Updater(TOKEN)
-#updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-updater.bot.setWebhook()#"https://"+APPNAME+".herokuapp.com/"+TOKEN)
+updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+updater.bot.setWebhook("https://"+APPNAME+".herokuapp.com/"+TOKEN)
 
 db = DataBase()
 
