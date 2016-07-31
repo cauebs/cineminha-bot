@@ -100,6 +100,8 @@ def listar(bot, update, mode=0, q='', date=0):
 					day_number = str(days.index(day))
 					if lang == "pt-br":
 						label = day.replace('-feira','')
+					else:
+						label = day
 					if day_number == date:
 						label = '« '+day+' »'
 					buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
@@ -132,6 +134,8 @@ def handle_callback(bot, update):
 				day_number = str(days.index(day))
 				if lang == "pt-br":
 					label = day.replace('-feira','')
+				else:
+					label = day
 				if day_number == date:
 					label = '« '+day+' »'
 				buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
@@ -168,5 +172,4 @@ updater.dispatcher.add_handler(MessageHandler([Filters.text], handle_message))
 updater.dispatcher.add_handler(CallbackQueryHandler(handle_callback))
 updater.dispatcher.add_handler(InlineQueryHandler(handle_inline))
 
-updater.start_polling()
 updater.idle()

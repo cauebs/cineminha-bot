@@ -28,7 +28,11 @@ def serialize(near, date=0, time=0, sort=0, q=''):
 			parent["type"] = div["class"][0]
 			parent["name"] = div.h2.get_text()
 			if parent["type"] == "movie":
-				parent["info"] = div.find_all("div", class_="info")[0].get_text().split('Dire')[0]
+				infos = div.find_all("div", class_="info")
+				if infos[0]["class"] == ["info"]:
+					parent["info"] = infos[0].get_text().split('Dire')[0]
+				else:
+					parent["info"] = infos[1].get_text().split('Dire')[0]
 			else:
 				parent["info"] = div.find_all("div", class_="info")[0].get_text()
 			parent["children"] = []
@@ -45,7 +49,9 @@ def serialize(near, date=0, time=0, sort=0, q=''):
 				if child["name"] == '':
 					continue
 				if child_type == "movie":
-					child["info"] = c.span.get_text().split('Dire')[0]
+					child["info"] = c.span.get_text("#", strip=True).split("#")[0]
+					if child["info"][-1]=='-':
+						child["info"] = child["info"][0:-1]
 				else:
 					child["info"] = c.find_all("div", class_="address")[0].get_text()
 				child["times"] = {"none":[],"dub":[],"sub":[]}
@@ -101,19 +107,19 @@ def cineminha(info):
 				for child in i["children"]:
 					txt += '\n\n• '+child["name"]
 					if child["type"] == "movie":
-						txt += '\n  '+child["info"]
+						txt += '\n'+child["info"]
 					if len(child["times"]["none"]) > 0:
 						txt += '\n'
 						for time in child["times"]["none"]:
-							txt += '  ' + time
+							txt += time + '  '
 					if len(child["times"]["dub"]) > 0:
-						txt += '\n  '+textos.lang[lang][0]+':'
+						txt += '\n'+textos.lang[lang][0]+':'
 						for time in child["times"]["dub"]:
-							txt += '  ' + time
+							txt += time + '  '
 					if len(child["times"]["sub"]) > 0:
-						txt += '\n  '+textos.lang[lang][1]+':'
+						txt += '\n'+textos.lang[lang][1]+':'
 						for time in child["times"]["sub"]:
-							txt += '  ' + time
+							txt += time + '  '
 				response.append(txt)
 	return response
 
