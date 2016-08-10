@@ -4,7 +4,11 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, 
 from db import DataBase
 from fetch import *
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s(%(lineno)d) - %(message)s',level=logging.INFO)
+log_level = os.environ.get('LOGLEVEL')
+if log_level == 'debug':
+	logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+elif log_level == 'info':
+	logging.basicConfig(level=logging.INFO,format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TOKEN = os.environ.get('TOKEN')
 APPNAME = os.environ.get('APPNAME')
@@ -67,20 +71,24 @@ def handle_message(bot, update):
 	else:
 		listar(bot, update, mode=2, q=txt)
 
-def listar(bot, update, mode=0, q='', date=0):
+def listar(bot, update, mode=0, q='', id='', date=0):
 	uid = update.message.from_user.id
 	loc = db.get_loc(uid)
 	if loc is None:
 		bot.sendMessage(uid,text=textos.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
-		serial = serialize(loc, sort=mode, q=q)
+		if q=='' and id!='':
+			serial = serialize(loc, id=id)
+			q = id
+		else:
+			serial = serialize(loc, sort=mode, q=q)
 		lista = serial[1:]
 		n = len(lista)
 
 		keyboard = []
 		if len(lista)>1:
 			for item in lista:
-				button = InlineKeyboardButton(item["name"],callback_data=str(0)+'#'+item["name"]+'#0')
+				button = InlineKeyboardButton(item["name"],callback_data='0##'+item["id"]+'##0')
 				keyboard.append([button])
 
 			if len(keyboard)==0:
@@ -94,7 +102,7 @@ def listar(bot, update, mode=0, q='', date=0):
 			days = serial[0]
 			msgtext = cineminha(lista)[0]
 
-			if len(days)>1:
+			if len(days)>1 and len(lista)>0:
 				buttons = []
 				for day in days:
 					day_number = str(days.index(day))
@@ -104,7 +112,7 @@ def listar(bot, update, mode=0, q='', date=0):
 						label = day
 					if day_number == date:
 						label = '« '+day+' »'
-					buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
+					buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+day_number))
 				markup = InlineKeyboardMarkup([buttons])
 			else:
 				markup = buttons_markup(lang)
@@ -118,17 +126,18 @@ def handle_callback(bot, update):
 		bot.sendMessage(uid,text=textos.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
 
-		data = update.callback_query.data.split('#')
+		data = update.callback_query.data.split('##')
 		mode = int(data[0])
-		q = data[1]
+		id = data[1]
 		date = data[2]
 
-		serial = serialize(loc, q=q, date=date)
+		serial = serialize(loc, id=id, date=date)
+
 		lista = serial[1:]
 		days = serial[0]
 		msgtext = cineminha(lista)[0]
 
-		if len(days)>1:
+		if len(days)>1 and len(lista)>0:
 			buttons = []
 			for day in days:
 				day_number = str(days.index(day))
@@ -138,7 +147,7 @@ def handle_callback(bot, update):
 					label = day
 				if day_number == date:
 					label = '« '+day+' »'
-				buttons.append(InlineKeyboardButton(label,callback_data=str(1)+'#'+q+'#'+day_number))
+				buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+day_number))
 			markup = InlineKeyboardMarkup([buttons])
 		else:
 			markup = buttons_markup(lang)

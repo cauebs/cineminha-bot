@@ -1,18 +1,23 @@
-from urllib.request import urlopen
-from urllib.parse import quote
+import requests
+from requests.utils import quote
 from bs4 import BeautifulSoup
 from telegram import Emoji, InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
 import os, textos
 
 lang = os.environ.get('lang')
 
-def serialize(near, date=0, time=0, sort=0, q=''):
+def serialize(near, date=0, time=0, sort=0, q='', id=''):
 
-	url = "http://google.com/movies?near={}&date={}&time={}&sort={}&hl={}".format(quote(near), date, time, sort, lang)
-	if q!='':
+	url = "http://google.com/movies?near={}&date={}&time={}&hl={}".format(quote(near), date, time, lang)
+
+	if id!='':
+		url += "&"+id
+	elif q!='':
 		url += '&q='+quote(q)
+	else:
+		url += "&sort=" + str(sort)
 
-	soup = BeautifulSoup(urlopen(url).read(),'html.parser')
+	soup = BeautifulSoup(requests.get(url).text,'html.parser')
 	body = soup.find_all("div", class_="movie_results")
 	response = []
 
@@ -27,6 +32,7 @@ def serialize(near, date=0, time=0, sort=0, q=''):
 			parent = {}
 			parent["type"] = div["class"][0]
 			parent["name"] = div.h2.get_text()
+			parent["id"] = div.a['href'].split('&')[-1]
 			if parent["type"] == "movie":
 				infos = div.find_all("div", class_="info")
 				if infos[0]["class"] == ["info"]:
@@ -48,12 +54,15 @@ def serialize(near, date=0, time=0, sort=0, q=''):
 				child["type"] = child_type
 				if child["name"] == '':
 					continue
-				if child_type == "movie":
-					child["info"] = c.span.get_text("#", strip=True).split("#")[0]
-					if child["info"][-1]=='-':
-						child["info"] = child["info"][0:-1]
-				else:
-					child["info"] = c.find_all("div", class_="address")[0].get_text()
+				try:
+					if child_type == "movie":
+						child["info"] = c.span.get_text("#", strip=True).split("#")[0]
+						if child["info"][-1]=='-':
+							child["info"] = child["info"][0:-1]
+					else:
+						child["info"] = c.find_all("div", class_="address")[0].get_text()
+				except:
+					child["info"] = ""
 				child["times"] = {"none":[],"dub":[],"sub":[]}
 
 				times = c.find_all("div", class_="times")[0]
