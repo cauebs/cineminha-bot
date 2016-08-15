@@ -32,7 +32,7 @@ def start(bot, update):
 	uid = update.message.from_user.id
 	loc = db.get_loc(uid)
 	if loc is None:
-		start_markup = ReplyKeyboardMarkup([[KeyboardButton(textos.buttons["pt-br"][2],request_location=True)]])
+		start_markup = ReplyKeyboardMarkup([[KeyboardButton(textos.buttons[lang][2],request_location=True)]])
 		bot.sendMessage(uid, text=textos.start[lang], reply_markup=start_markup, parse_mode="Markdown")
 	else:
 		bot.sendMessage(uid,text=textos.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
