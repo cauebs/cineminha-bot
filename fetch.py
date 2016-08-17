@@ -2,7 +2,7 @@ import requests
 from requests.utils import quote
 from bs4 import BeautifulSoup
 from telegram import Emoji, InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
-import os, textos
+import os, strings
 
 lang = os.environ.get('lang')
 
@@ -24,7 +24,14 @@ def serialize(near, date=0, time=0, sort=0, q='', id=''):
 	days = []
 	div = soup.find_all("div", class_="section")[1]
 	for i in div.children:
-		days.append(i.get_text().replace('›','').strip())	
+		label = i.get_text().replace('›','').strip()
+		try:
+			for param in i.a['href'].split('&'):
+				if 'date' in param:
+					identifier = param.split('=')[1]
+		except:
+			identifier = "current"
+		days.append((label,identifier))
 	response.append(days)
 
 	if len(body) > 0:	
@@ -69,9 +76,9 @@ def serialize(near, date=0, time=0, sort=0, q='', id=''):
 				timesplit = str(times).split('<br>')
 
 				times1 = BeautifulSoup(timesplit[0],'html.parser')
-				if textos.lang[lang][1] in times1.get_text():
+				if strings.lang[lang][1] in times1.get_text():
 					opt = "sub"
-				elif textos.lang[lang][0] in times1.get_text():
+				elif strings.lang[lang][0] in times1.get_text():
 					opt = "dub"
 				else:
 					opt = 'none'
@@ -82,9 +89,9 @@ def serialize(near, date=0, time=0, sort=0, q='', id=''):
 
 				if len(timesplit) > 1:
 					times2 = BeautifulSoup(timesplit[1],'html.parser')
-					if textos.lang[lang][1] in times2.get_text():
+					if strings.lang[lang][1] in times2.get_text():
 						opt = "sub"
-					elif textos.lang[lang][0] in times2.get_text():
+					elif strings.lang[lang][0] in times2.get_text():
 						opt = "dub"
 					else:
 						opt = 'none'
@@ -101,7 +108,7 @@ def cineminha(info):
 	response = []
 
 	if len(info)==0:
-		response.append(textos.no_results[lang])
+		response.append(strings.no_results[lang])
 
 	else:
 		for i in info:
@@ -111,7 +118,7 @@ def cineminha(info):
 				elif i["type"] == 'movie':
 					txt = Emoji.CLAPPER_BOARD
 				txt += ' *'+i["name"]+'*'
-				txt += '\n' + i["info"]
+				txt += '\n_' + i["info"] + '_'
 
 				for child in i["children"]:
 					txt += '\n\n• '+child["name"]
@@ -122,11 +129,11 @@ def cineminha(info):
 						for time in child["times"]["none"]:
 							txt += time + '  '
 					if len(child["times"]["dub"]) > 0:
-						txt += '\n'+textos.lang[lang][0]+':'
+						txt += '\n'+strings.lang[lang][0]+': '
 						for time in child["times"]["dub"]:
 							txt += time + '  '
 					if len(child["times"]["sub"]) > 0:
-						txt += '\n'+textos.lang[lang][1]+':'
+						txt += '\n'+strings.lang[lang][1]+': '
 						for time in child["times"]["sub"]:
 							txt += time + '  '
 				response.append(txt)
@@ -137,9 +144,9 @@ def inline(loc, query, lang):
 	results = []
 	info = serialize(loc, q=query, sort=1)[1:]
 	if len(info)==0:
-		title = textos.no_results[lang].split('\n')[0].replace('*','')
-		desc = textos.no_results[lang].split('\n')[1]
-		msg = InputTextMessageContent(textos.no_results[lang],parse_mode="Markdown")
+		title = strings.no_results[lang].split('\n')[0].replace('*','')
+		desc = strings.no_results[lang].split('\n')[1]
+		msg = InputTextMessageContent(strings.no_results[lang],parse_mode="Markdown")
 		results.append(InlineQueryResultArticle(0,title,msg,description=desc))
 	else:
 		for i in info:
