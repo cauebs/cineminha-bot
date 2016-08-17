@@ -34,3 +34,7 @@ class DataBase():
 			self.cur.execute('UPDATE users SET location=\''+loc+'\' WHERE id='+str(uid))
 			self.conn.commit()
 			return True
+
+	def get_users(self):
+		self.cur.execute("SELECT id FROM users")
+		return self.cur.fetchall()

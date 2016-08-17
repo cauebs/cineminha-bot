@@ -101,40 +101,43 @@ def listar(bot, update, mode=0, q='', id='', date=0):
 		bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
 def handle_callback(bot, update):
-	uid = update.callback_query.from_user.id
-	loc = db.get_loc(uid)
-	if loc is None:
-		bot.sendMessage(uid,text=strings.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
+	if update.callback_query.data == 'go go go':
+		announce(bot, update, None, confirmed=True)
 	else:
-
-		data = update.callback_query.data.split('##')
-		mode = int(data[0])
-		id = data[1]
-		date = data[2]
-
-		serial = serialize(loc, id=id, date=date)
-
-		lista = serial[1:]
-		days = serial[0]
-		msgtext = cineminha(lista)[0]
-
-		if len(days)>1 and len(lista)>0:
-			buttons = []
-			for day in days:
-				label, identifier = day
-				if lang == "pt-br":
-					label = label.replace('-feira','')
-				if str(identifier) == 'current':
-					label = '« '+label+' »'
-				buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
-			markup = InlineKeyboardMarkup([buttons])
+		uid = update.callback_query.from_user.id
+		loc = db.get_loc(uid)
+		if loc is None:
+			bot.sendMessage(uid,text=strings.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 		else:
-			markup = buttons_markup(lang)
 
-		if mode==0:
-			bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
-		elif mode==1:
-			bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=markup)
+			data = update.callback_query.data.split('##')
+			mode = int(data[0])
+			id = data[1]
+			date = data[2]
+
+			serial = serialize(loc, id=id, date=date)
+
+			lista = serial[1:]
+			days = serial[0]
+			msgtext = cineminha(lista)[0]
+
+			if len(days)>1 and len(lista)>0:
+				buttons = []
+				for day in days:
+					label, identifier = day
+					if lang == "pt-br":
+						label = label.replace('-feira','')
+					if str(identifier) == 'current':
+						label = '« '+label+' »'
+					buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
+				markup = InlineKeyboardMarkup([buttons])
+			else:
+				markup = buttons_markup(lang)
+
+			if mode==0:
+				bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
+			elif mode==1:
+				bot.editMessageText(text=msgtext, chat_id=uid, message_id=update.callback_query.message.message_id,parse_mode="Markdown", reply_markup=markup)
 
 def handle_inline(bot, update):
 	uid = update.inline_query.from_user.id
@@ -147,3 +150,22 @@ def movies(bot, update):
 
 def theaters(bot, update):
 	listar(bot, update, mode=0)
+
+def announce(bot, update, args, confirmed=False):
+	if not confirmed:
+		uid = update.message.from_user.id
+		if uid == 61407387:
+			markup = InlineKeyboardMarkup([[InlineKeyboardButton("GO",callback_data='go go go')]])
+			bot.sendMessage(uid,text=" ".join(args), parse_mode="Markdown", reply_markup=markup)
+	else:
+		user_list = db.get_users()
+		text = update.callback_query.message.text
+		for user in user_list:
+			success = False
+			while(not success):
+				msg = bot.sendMessage(user[0],text=text, parse_mode="Markdown", markup=buttons_markup(lang))
+				try:
+					success = msg.text == text
+				except:
+					success = False
+					
