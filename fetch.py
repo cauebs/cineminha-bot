@@ -137,11 +137,9 @@ def inline(loc, query, lang):
 	results = []
 	info = serialize(loc, q=query, sort=1)[1:]
 	if len(info)==0:
-		title = 
-textos.no_results[lang].split('\n')[0].replace('*','')
+		title = textos.no_results[lang].split('\n')[0].replace('*','')
 		desc = textos.no_results[lang].split('\n')[1]
-		msg = 
-InputTextMessageContent(textos.no_results[lang],parse_mode="Markdown")
+		msg = InputTextMessageContent(textos.no_results[lang],parse_mode="Markdown")
 		results.append(InlineQueryResultArticle(0,title,msg,description=desc))
 	else:
 		for i in info:
