@@ -164,8 +164,8 @@ def announce(bot, update, args, confirmed=False):
 		for user in user_list:
 			success = False
 			while(not success):
-				msg = bot.sendMessage(user[0],text=text, parse_mode="Markdown", markup=buttons_markup(lang), disable_web_page_preview=True)
 				try:
+					msg = bot.sendMessage(user[0],text=text, parse_mode="Markdown", markup=buttons_markup(lang), disable_web_page_preview=True)
 					success = msg.text == text
 				except:
 					success = False
