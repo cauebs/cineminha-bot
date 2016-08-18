@@ -11,6 +11,27 @@ def buttons_markup(lang):
 		[KeyboardButton(strings.buttons[lang][3])]
 	])
 
+def days_markup(days, count, id, title):
+	if count>0:
+		keyboard = []
+		if len(days)>1:
+			day_buttons = []
+			for day in days:
+				label, identifier = day
+				if lang == "pt-br":
+					label = label.replace('-feira','')
+				if str(identifier) == 'current':
+					label = '« '+label+' »'
+				day_buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
+			keyboard.append(day_buttons)
+
+		keyboard.append([InlineKeyboardButton(strings.share[lang],switch_inline_query=title)])
+		markup = InlineKeyboardMarkup(keyboard)
+	else:
+		markup = buttons_markup(lang)
+
+	return markup
+
 def start(bot, update):
 	uid = update.message.from_user.id
 	loc = db.get_loc(uid)
@@ -46,23 +67,22 @@ def handle_message(bot, update):
 	uid = update.message.from_user.id
 	txt = update.message.text
 	if txt == strings.buttons[lang][0]:
-		listar(bot, update, mode=1)
+		selector(bot, update, mode=1)
 	elif txt == strings.buttons[lang][1]:
-		listar(bot, update, mode=0)
+		selector(bot, update, mode=0)
 	elif txt == strings.buttons[lang][3]:
 		bot.sendMessage(uid,text=strings.help[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
-		listar(bot, update, mode=2, q=txt)
+		selector(bot, update, mode=2, q=txt)
 
-def listar(bot, update, mode=0, q='', id='', date=0):
+def selector(bot, update, mode=0, q='', id='', date=0):
 	uid = update.message.from_user.id
 	loc = db.get_loc(uid)
 	if loc is None:
 		bot.sendMessage(uid,text=strings.loc_undefined[lang], parse_mode="Markdown", reply_markup=buttons_markup(lang))
 	else:
-		if q=='' and id!='':
+		if id!='':
 			serial = serialize(loc, id=id)
-			q = id
 		else:
 			serial = serialize(loc, sort=mode, q=q)
 		lista = serial[1:]
@@ -85,18 +105,7 @@ def listar(bot, update, mode=0, q='', id='', date=0):
 			days = serial[0]
 			msgtext = cineminha(lista)[0]
 
-			if len(days)>1 and len(lista)>0:
-				buttons = []
-				for day in days:
-					label, identifier = day
-					if lang == "pt-br":
-						label = label.replace('-feira','')
-					if str(identifier) == str(date):
-						label = '« '+label+' »'
-					buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
-				markup = InlineKeyboardMarkup([buttons])
-			else:
-				markup = buttons_markup(lang)
+			markup = days_markup(days, len(lista), id, q)
 
 		bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
@@ -121,18 +130,7 @@ def handle_callback(bot, update):
 			days = serial[0]
 			msgtext = cineminha(lista)[0]
 
-			if len(days)>1 and len(lista)>0:
-				buttons = []
-				for day in days:
-					label, identifier = day
-					if lang == "pt-br":
-						label = label.replace('-feira','')
-					if str(identifier) == 'current':
-						label = '« '+label+' »'
-					buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
-				markup = InlineKeyboardMarkup([buttons])
-			else:
-				markup = buttons_markup(lang)
+			markup = days_markup(days, len(lista), id, lista[0]["name"])
 
 			if mode==0:
 				bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
@@ -146,24 +144,27 @@ def handle_inline(bot, update):
 	bot.answerInlineQuery(update.inline_query.id, results=results, is_personal=True)
 
 def movies(bot, update):
-	listar(bot, update, mode=1)
+	selector(bot, update, mode=1)
 
 def theaters(bot, update):
-	listar(bot, update, mode=0)
+	selector(bot, update, mode=0)
 
 def announce(bot, update, args, confirmed=False):
 	if not confirmed:
 		uid = update.message.from_user.id
 		if uid == 61407387:
 			markup = InlineKeyboardMarkup([[InlineKeyboardButton("GO",callback_data='go go go')]])
-			bot.sendMessage(uid,text=" ".join(args), parse_mode="Markdown", reply_markup=markup)
+			try:
+				bot.sendMessage(uid,text=" ".join(args), parse_mode="Markdown", reply_markup=markup, disable_web_page_preview=True)
+			except:
+				bot.sendMessage(uid,text="Something wrong with your message. Remember:`parse_mode=\"Markdown\"`", parse_mode="Markdown")
 	else:
 		user_list = db.get_users()
 		text = update.callback_query.message.text
 		for user in user_list:
 			success = False
 			while(not success):
-				msg = bot.sendMessage(user[0],text=text, parse_mode="Markdown", markup=buttons_markup(lang))
+				msg = bot.sendMessage(user[0],text=text, parse_mode="Markdown", markup=buttons_markup(lang), disable_web_page_preview=True)
 				try:
 					success = msg.text == text
 				except:

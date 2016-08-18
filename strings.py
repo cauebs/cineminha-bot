@@ -56,6 +56,8 @@ loc_empty = {
 /local _11213_
 /local _Rue Cler, Paris_'''}
 
+share = {"pt-br":"Compartilhar","en":"Share"}
+
 help = {
 "pt-br":'''• Use os botões abaixo para listar cinemas ou filmes.
 • Envie uma mensagem a qualquer momento para pesquisar
