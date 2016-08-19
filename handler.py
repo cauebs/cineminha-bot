@@ -11,24 +11,21 @@ def buttons_markup(lang):
 		[KeyboardButton(strings.buttons[lang][3])]
 	])
 
-def days_markup(days, count, id, title):
-	if count>0:
-		keyboard = []
-		if len(days)>1:
-			day_buttons = []
-			for day in days:
-				label, identifier = day
-				if lang == "pt-br":
-					label = label.replace('-feira','')
-				if str(identifier) == 'current':
-					label = '« '+label+' »'
-				day_buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
-			keyboard.append(day_buttons)
+def days_markup(days, id, title):
+	keyboard = []
+	if len(days)>1:
+		day_buttons = []
+		for day in days:
+			label, identifier = day
+			if lang == "pt-br":
+				label = label.replace('-feira','')
+			if str(identifier) == 'current':
+				label = '« '+label+' »'
+			day_buttons.append(InlineKeyboardButton(label,callback_data='1##'+id+'##'+identifier))
+		keyboard.append(day_buttons)
 
-		keyboard.append([InlineKeyboardButton(strings.share[lang],switch_inline_query=title)])
-		markup = InlineKeyboardMarkup(keyboard)
-	else:
-		markup = buttons_markup(lang)
+	keyboard.append([InlineKeyboardButton(strings.share[lang],switch_inline_query=title)])
+	markup = InlineKeyboardMarkup(keyboard)
 
 	return markup
 
@@ -105,7 +102,10 @@ def selector(bot, update, mode=0, q='', id='', date=0):
 			days = serial[0]
 			msgtext = cineminha(lista)[0]
 
-			markup = days_markup(days, len(lista), id, q)
+			if len(lista)>0:
+				markup = days_markup(days, id, q)
+			else:
+				markup = buttons_markup(lang)
 
 		bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
 
@@ -130,7 +130,10 @@ def handle_callback(bot, update):
 			days = serial[0]
 			msgtext = cineminha(lista)[0]
 
-			markup = days_markup(days, len(lista), id, lista[0]["name"])
+			if len(lista)>0:
+				markup = days_markup(days, id, lista[0]["name"])
+			else:
+				markup = buttons_markup(lang)
 
 			if mode==0:
 				bot.sendMessage(uid,text=msgtext, parse_mode="Markdown", reply_markup=markup)
